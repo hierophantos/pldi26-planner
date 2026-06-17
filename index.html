@@ -128,15 +128,44 @@
 
   .talk.now{outline:2px solid var(--now); outline-offset:1px; background:rgba(255,84,112,.06)}
 
-  /* matrix */
-  .mxwrap{overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:12px}
-  table.mx{border-collapse:collapse; width:100%; min-width:560px; font-size:11.5px}
-  table.mx th, table.mx td{border:1px solid var(--line); padding:6px 7px; vertical-align:top; text-align:left}
-  table.mx thead th{position:sticky; top:0; background:var(--card2); font-size:11px}
-  table.mx td.t{font-weight:700; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; background:var(--card2)}
-  table.mx td.H{background:var(--Hbg)} table.mx td.M{background:var(--Mbg)} table.mx td.L{background:var(--Lbg); color:var(--muted)}
-  table.mx td.H .mh{color:var(--H); font-weight:800}
-  table.mx td .rm{color:var(--muted)}
+  /* matrix — full-day grid: times as rows, rooms as columns */
+  #matrix{margin-top:2px}
+  #matrix .mb-band{border:1px solid var(--line); background:var(--card2); color:var(--muted);
+    border-radius:9px; padding:6px 9px; margin:7px 0; font-size:11.5px}
+  #matrix .mb-band b{color:var(--ink); font-variant-numeric:tabular-nums}
+  #matrix .mb-band.key{background:var(--keybg); border-color:var(--keybd); color:var(--ink)}
+  #matrix .mblock{margin:12px 0 4px}
+  #matrix .mb-title{font-weight:800; font-size:13px; margin:2px 2px 5px}
+  #matrix .mb-title span{color:var(--muted); font-weight:600; font-variant-numeric:tabular-nums}
+  #matrix .grid-row{display:grid; grid-template-columns:42px 1fr 1fr 1fr; gap:4px; margin-bottom:4px}
+  #matrix .mb-head .rh{font-size:10px; font-weight:800; letter-spacing:.02em; color:var(--muted);
+    background:var(--card2); border:1px solid var(--line); border-radius:7px; padding:4px 5px; line-height:1.2}
+  #matrix .mb-head .rhx{}
+  #matrix .mt{font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums;
+    display:flex; align-items:center; justify-content:center}
+  #matrix .mc{border:1px solid var(--line); border-radius:8px; padding:5px 6px; font-size:11px;
+    line-height:1.22; min-height:40px; cursor:pointer; overflow:hidden; -webkit-tap-highlight-color:transparent}
+  #matrix .mc.empty{background:transparent; border-style:dashed; opacity:.35; cursor:default; min-height:0}
+  #matrix .mc-H{background:var(--Hbg); border-color:var(--Hbd)}
+  #matrix .mc-M{background:var(--Mbg); border-color:var(--Mbd)}
+  #matrix .mc-L{background:var(--Lbg); border-color:var(--Lbd)}
+  #matrix .mc .pc{font-weight:900; font-size:9px; padding:0 4px; border-radius:4px; margin-right:3px; vertical-align:1px}
+  #matrix .mc-H .pc{background:var(--H); color:#fff}
+  #matrix .mc-M .pc{background:var(--M); color:#221c08}
+  #matrix .mc-L .pc{background:transparent; color:var(--L); border:1px solid var(--Lbd)}
+  #matrix .mc-L .mc-t{color:var(--muted)}
+  #matrix .mc .bstar{color:var(--M); font-weight:900; margin-right:1px}
+  #matrix .mc.bh .bstar{color:var(--H)}
+  #matrix .mc-t{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  #matrix .mc.open .mc-t{-webkit-line-clamp:unset; overflow:visible}
+  #matrix .mc .mc-meta{display:none; margin-top:4px; color:var(--muted); font-size:10px; line-height:1.3}
+  #matrix .mc.open .mc-meta{display:block}
+  #matrix .mc.best{box-shadow:inset 0 0 0 2px var(--M)}
+  #matrix .mc.best.bh{box-shadow:inset 0 0 0 2px var(--H)}
+  #matrix .mc.now{outline:2px solid var(--now); outline-offset:1px}
+  #matrix .mt.now{color:var(--now); font-weight:800}
+  #matrix .mxleg{display:flex; gap:10px 14px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin:4px 2px 0}
+  #matrix .mxleg b{color:var(--ink)}
 
   footer{color:var(--muted); font-size:12px; line-height:1.5; margin-top:22px; border-top:1px solid var(--line); padding-top:12px}
   footer code{background:var(--card2); padding:1px 5px; border-radius:5px; font-size:11px}
@@ -163,8 +192,8 @@
       <button data-f="h">H only</button>
     </div>
     <div class="seg" role="group" aria-label="view">
-      <button data-v="agenda" aria-pressed="true">Agenda</button>
-      <button data-v="matrix">Matrix</button>
+      <button data-v="matrix" aria-pressed="true">Matrix</button>
+      <button data-v="agenda">Agenda</button>
     </div>
     <button class="jumpnow" id="jumpnow">Jump to now</button>
   </div>
@@ -184,17 +213,22 @@
     </div>
   </section>
 
-  <!-- AGENDA -->
-  <section id="agenda-sec">
-    <h2 class="sec">Full agenda — today</h2>
-    <div id="agenda"></div>
+  <!-- MATRIX -->
+  <section id="matrix-sec">
+    <h2 class="sec">Matrix — pick in the moment (every room, every slot)</h2>
+    <div id="matrix"></div>
+    <div class="mxleg" style="margin-top:8px">
+      <span><b>ring</b> = best fit for that slot</span>
+      <span><b>★</b> = top H pick</span>
+      <span><b>tap a cell</b> for who / why</span>
+      <span>all rooms shown — deviate freely</span>
+    </div>
   </section>
 
-  <!-- MATRIX -->
-  <section id="matrix-sec" class="hidden">
-    <h2 class="sec">Matrix — time × room (opportunity cost at a glance)</h2>
-    <div id="matrix"></div>
-    <p style="color:var(--muted);font-size:12px">Each cell is the talk in that room at that time, shaded by Prologos priority. Scroll sideways. ★ = H.</p>
+  <!-- AGENDA -->
+  <section id="agenda-sec" class="hidden">
+    <h2 class="sec">Full agenda — today</h2>
+    <div id="agenda"></div>
   </section>
 
   <footer>
@@ -376,30 +410,47 @@ function miscHTML(ev){
 }
 $("#agenda").innerHTML = DATA.events.map(ev => ev.type==="block" ? blockHTML(ev) : miscHTML(ev)).join("");
 
-// matrix (paper blocks only)
-function matrixHTML(){
-  const blocks = DATA.events.filter(e=>e.type==="block");
-  let html = "";
-  for(const b of blocks){
-    const times = [...new Set(b.rooms.flatMap(r=>r.talks.map(t=>t.t)))].sort();
-    html += `<div class="mxwrap" style="margin:10px 0"><table class="mx">
-      <thead><tr><th>${b.label}<br><span style="font-weight:400;color:var(--muted)">${b.s}–${b.e}</span></th>
-      ${b.rooms.map(r=>`<th>${r.room.replace("Flatirons","F")}<br><span style="font-weight:400">${r.session}</span></th>`).join("")}</tr></thead><tbody>`;
-    for(const tm of times){
-      html += `<tr><td class="t">${tm}</td>`;
-      for(const r of b.rooms){
-        const tk = r.talks.find(t=>t.t===tm);
-        if(!tk){ html += `<td class="L"></td>`; continue; }
-        const star = tk.p==="H" ? "★ " : "";
-        html += `<td class="${tk.p}"><span class="mh">${star}</span>${tk.ti}<div class="rm">${tk.who}</div></td>`;
-      }
-      html += `</tr>`;
+// matrix — full-day grid: times down, rooms across; all rooms visible; best-fit ringed
+function prioRank(p){return p==="H"?3:p==="M"?2:1}
+function buildMatrix(){
+  let html="";
+  for(const ev of DATA.events){
+    if(ev.type!=="block"){
+      const cls = ev.type==="keynote" ? "key" : "misc";
+      const tl = ev.s + (ev.e?"–"+ev.e:"");
+      html += `<div class="mb-band ${cls}"><b>${tl}</b> · ${ev.title}${ev.loc?` · ${ev.loc}`:""}</div>`;
+      continue;
     }
-    html += `</tbody></table></div>`;
+    html += `<div class="mblock"><div class="mb-title">${ev.label} <span>${ev.s}–${ev.e}</span></div>`;
+    html += `<div class="grid-row mb-head"><div class="rhx"></div>` +
+      ev.rooms.map(r=>`<div class="rh">${r.room.replace("Flatirons","F")} · ${r.session}</div>`).join("") + `</div>`;
+    const times=[...new Set(ev.rooms.flatMap(r=>r.talks.map(t=>t.t)))].sort();
+    for(const tm of times){
+      const cells = ev.rooms.map(r=>r.talks.find(t=>t.t===tm)||null);
+      const present = cells.filter(Boolean);
+      const maxr = present.length ? Math.max(...present.map(t=>prioRank(t.p))) : 0;
+      const markBest = maxr>=2; // only ring a "pick" when something M+ exists
+      html += `<div class="grid-row"><div class="mt" data-s="${mins(tm)}">${tm}</div>`;
+      for(const tk of cells){
+        if(!tk){ html += `<div class="mc empty"></div>`; continue; }
+        const isBest = markBest && prioRank(tk.p)===maxr;
+        const bh = (isBest && tk.p==="H") ? " bh" : "";
+        const star = isBest ? `<span class="bstar">${tk.p==="H"?"★":"●"}</span>` : "";
+        html += `<div class="mc mc-${tk.p}${isBest?" best":""}${bh}" data-s="${mins(tm)}">`+
+          `<div class="mc-t"><span class="pc">${tk.p}</span>${star}${tk.ti}${tk.badge?` <span style="opacity:.7">[${tk.badge}]</span>`:""}</div>`+
+          `<div class="mc-meta">${tk.who}${tk.why?" — "+tk.why:""}</div></div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
   }
   return html;
 }
-$("#matrix").innerHTML = matrixHTML();
+$("#matrix").innerHTML = buildMatrix();
+$("#matrix").addEventListener("click", e=>{
+  const c=e.target.closest(".mc");
+  if(c && !c.classList.contains("empty")) c.classList.toggle("open");
+});
 
 /* ---------- interactions ---------- */
 // collapse rooms
@@ -441,18 +492,22 @@ function tick(){
     const s=+el.dataset.s, e=el.dataset.e===""?null:+el.dataset.e;
     if(e!=null && mNow>=s && mNow<e && (el.classList.contains("block")||el.classList.contains("ev"))){ cur=el; }
   });
-  // highlight current talk
+  // highlight current talk (agenda)
   document.querySelectorAll(".talk.now").forEach(t=>t.classList.remove("now"));
-  let curTalkTxt=null;
   document.querySelectorAll("#agenda .block").forEach(bl=>{
     const bs=+bl.dataset.s, be=+bl.dataset.e;
     if(mNow>=bs && mNow<be){
-      // find the 20-min slot
       bl.querySelectorAll(".talk").forEach(tk=>{
         const ts=+tk.dataset.s, te=ts+20;
         if(mNow>=ts && mNow<te){ tk.classList.add("now"); }
       });
     }
+  });
+  // highlight current row + cells (matrix)
+  document.querySelectorAll("#matrix .now").forEach(el=>el.classList.remove("now"));
+  document.querySelectorAll("#matrix .mc[data-s], #matrix .mt[data-s]").forEach(el=>{
+    const s=+el.dataset.s;
+    if(mNow>=s && mNow<s+20){ el.classList.add("now"); }
   });
 
   // NOW bar text
@@ -486,12 +541,17 @@ function tick(){
   } else { $("#nb-next").textContent = ""; }
 }
 function jumpNow(){
-  const block = [...document.querySelectorAll("#agenda .block, #agenda .ev")].find(b=>{
-    const s=+b.dataset.s, e=b.dataset.e===""?null:+b.dataset.e;
+  const matrixOn = !$("#matrix-sec").classList.contains("hidden");
+  let target=null;
+  if(matrixOn){ target = $("#matrix .mc.now") || $("#matrix .mt.now"); }
+  if(!target){
     const now = new Date().getHours()*60+new Date().getMinutes();
-    return e!=null && now>=s && now<e;
-  });
-  (block||document.querySelector("#route")).scrollIntoView({behavior:"smooth", block:"start"});
+    target = [...document.querySelectorAll("#agenda .block, #agenda .ev")].find(b=>{
+      const s=+b.dataset.s, e=b.dataset.e===""?null:+b.dataset.e;
+      return e!=null && now>=s && now<e;
+    });
+  }
+  (target||document.querySelector("#route")).scrollIntoView({behavior:"smooth", block:"center"});
 }
 $("#jumpnow").addEventListener("click", jumpNow);
 tick(); setInterval(tick, 30000);
