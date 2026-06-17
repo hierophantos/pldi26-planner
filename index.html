@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLDI 2026 · Wed Jun 17 · Prologos plan</title>
+<style>
+  :root{
+    --bg:#0e1116; --card:#171b22; --card2:#1d222b; --ink:#e8ecf2; --muted:#9aa6b6;
+    --line:#2a313c; --accent:#5aa0ff;
+    --H:#2ea043; --Hbg:#0f2417; --Hbd:#1c5230;
+    --M:#d2a32a; --Mbg:#241f10; --Mbd:#5a4a1c;
+    --L:#6b7686; --Lbg:#181b21; --Lbd:#262c36;
+    --key:#a371f7; --keybg:#1c1530; --keybd:#3a2a63;
+    --now:#ff5470;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f4f6f9; --card:#ffffff; --card2:#f7f9fc; --ink:#11151b; --muted:#5a6573;
+      --line:#e2e7ee; --accent:#1f6feb;
+      --H:#1a7f37; --Hbg:#e9f7ee; --Hbd:#aadcb9;
+      --M:#9a6700; --Mbg:#fdf6e3; --Mbd:#ecd9a5;
+      --L:#8a94a3; --Lbg:#f1f3f6; --Lbd:#e0e4ea;
+      --key:#6639ba; --keybg:#f3eefc; --keybd:#d8c7f5;
+      --now:#d11a45;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:0 0 64px; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent)}
+  .wrap{max-width:760px; margin:0 auto; padding:0 12px}
+
+  header.top{
+    position:sticky; top:0; z-index:30; background:var(--bg);
+    border-bottom:1px solid var(--line); padding-top:max(8px,env(safe-area-inset-top));
+  }
+  .hrow{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; padding:8px 12px 6px}
+  .hrow h1{font-size:17px; margin:0; letter-spacing:.2px}
+  .hrow .sub{color:var(--muted); font-size:12px}
+  .clock{margin-left:auto; font-variant-numeric:tabular-nums; font-weight:600; color:var(--accent); font-size:14px}
+
+  /* NOW bar */
+  #nowbar{
+    margin:0 12px 8px; padding:8px 10px; border-radius:10px;
+    background:var(--card2); border:1px solid var(--line); font-size:13px;
+    display:flex; gap:8px; align-items:center;
+  }
+  #nowbar .dot{width:8px;height:8px;border-radius:50%;background:var(--now);box-shadow:0 0 0 0 var(--now);animation:p 2s infinite}
+  @keyframes p{0%{box-shadow:0 0 0 0 rgba(255,84,112,.5)}70%{box-shadow:0 0 0 7px rgba(255,84,112,0)}100%{box-shadow:0 0 0 0 rgba(255,84,112,0)}}
+  #nowbar b{color:var(--ink)}
+  #nowbar .nb-next{color:var(--muted); margin-left:auto; text-align:right}
+
+  /* controls */
+  .controls{display:flex; gap:6px; padding:0 12px 8px; flex-wrap:wrap; align-items:center}
+  .seg{display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden}
+  .seg button{background:transparent; color:var(--muted); border:0; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--accent); color:#fff}
+  .jumpnow{margin-left:auto; background:var(--card2); border:1px solid var(--line); color:var(--ink); border-radius:9px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer}
+
+  /* filter dims L away */
+  body.f-h .p-L, body.f-h .p-M{display:none}
+  body.f-hm .p-L{display:none}
+  body.f-h .room.only-low, body.f-hm .room.only-low{opacity:.5}
+
+  section{margin:14px 0}
+  h2.sec{font-size:13px; text-transform:uppercase; letter-spacing:.10em; color:var(--muted); margin:0 0 8px; padding:0 2px}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 13px; margin:10px 0}
+
+  /* route */
+  .route .step{display:flex; gap:10px; padding:9px 0; border-bottom:1px dashed var(--line)}
+  .route .step:last-child{border-bottom:0}
+  .route .when{flex:0 0 56px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent); font-size:13px}
+  .route .what{flex:1}
+  .route .what .rm{font-weight:700}
+  .route .what .dz{color:var(--muted); font-size:13px; margin-top:2px}
+  .pill{display:inline-block; font-size:10.5px; font-weight:800; padding:1px 6px; border-radius:6px; vertical-align:middle; margin-left:4px}
+  .pill.H{color:var(--H); background:var(--Hbg); border:1px solid var(--Hbd)}
+  .pill.M{color:var(--M); background:var(--Mbg); border:1px solid var(--Mbd)}
+  .pill.K{color:var(--key); background:var(--keybg); border:1px solid var(--keybd)}
+
+  .clash{background:var(--Mbg); border:1px solid var(--Mbd); border-radius:12px; padding:10px 12px; font-size:13.5px}
+  .clash b{color:var(--M)}
+
+  /* agenda */
+  .ev{margin:8px 0}
+  .ev.misc, .ev.break{display:flex; gap:10px; align-items:baseline; padding:7px 12px; color:var(--muted); font-size:13px; border-left:3px solid var(--line); margin-left:2px}
+  .ev.break{font-style:italic}
+  .ev.keynote{padding:11px 13px; border-radius:14px; background:var(--keybg); border:1px solid var(--keybd)}
+  .ev.keynote .kt{font-weight:700}
+  .ev .time{flex:0 0 96px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent); font-size:13px}
+
+  .block > .bhead{display:flex; align-items:baseline; gap:8px; margin:18px 2px 6px}
+  .block > .bhead .bt{font-weight:800; font-size:15px}
+  .block > .bhead .bw{color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums}
+
+  .rooms{display:grid; grid-template-columns:1fr; gap:10px}
+  .room{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  .room.rec{border-color:var(--Hbd); box-shadow:0 0 0 1px var(--Hbd) inset}
+  .room > .rhead{display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:pointer; background:var(--card2); border-bottom:1px solid var(--line)}
+  .room > .rhead .rname{font-weight:800; font-size:12px; color:var(--muted); letter-spacing:.04em}
+  .room > .rhead .rsess{font-weight:700; flex:1}
+  .room.rec .rhead .rsess::after{content:" ★ pick"; color:var(--H); font-size:11px; font-weight:800}
+  .room > .rhead .chev{color:var(--muted); transition:transform .15s}
+  .room.collapsed > .rhead .chev{transform:rotate(-90deg)}
+  .room.collapsed > .talks{display:none}
+  .room .chair{padding:4px 12px 0; color:var(--muted); font-size:11.5px}
+  .talks{padding:6px 8px 10px}
+  .talk{display:flex; gap:9px; padding:7px 6px; border-radius:9px; align-items:flex-start}
+  .talk + .talk{border-top:1px solid var(--line)}
+  .talk .tt{flex:0 0 44px; font-weight:700; font-variant-numeric:tabular-nums; font-size:12.5px; color:var(--muted); padding-top:1px}
+  .talk .tbody{flex:1; min-width:0}
+  .talk .tag{display:inline-block; width:16px; height:16px; line-height:16px; text-align:center; border-radius:5px; font-size:10px; font-weight:900; margin-right:5px; vertical-align:1px}
+  .p-H .tag{color:#fff; background:var(--H)}
+  .p-M .tag{color:#221c08; background:var(--M)}
+  .p-L .tag{color:var(--L); background:var(--Lbg); border:1px solid var(--Lbd)}
+  .talk .ti{font-weight:600}
+  .p-L .ti{color:var(--muted); font-weight:500}
+  .talk .who{color:var(--muted); font-size:12px; margin-top:1px}
+  .talk .why{color:var(--H); font-size:11.5px; margin-top:2px}
+  .p-M .why{color:var(--M)}
+  .badge{font-size:10px; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:0 4px; margin-left:4px}
+
+  .talk.now{outline:2px solid var(--now); outline-offset:1px; background:rgba(255,84,112,.06)}
+
+  /* matrix */
+  .mxwrap{overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:12px}
+  table.mx{border-collapse:collapse; width:100%; min-width:560px; font-size:11.5px}
+  table.mx th, table.mx td{border:1px solid var(--line); padding:6px 7px; vertical-align:top; text-align:left}
+  table.mx thead th{position:sticky; top:0; background:var(--card2); font-size:11px}
+  table.mx td.t{font-weight:700; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; background:var(--card2)}
+  table.mx td.H{background:var(--Hbg)} table.mx td.M{background:var(--Mbg)} table.mx td.L{background:var(--Lbg); color:var(--muted)}
+  table.mx td.H .mh{color:var(--H); font-weight:800}
+  table.mx td .rm{color:var(--muted)}
+
+  footer{color:var(--muted); font-size:12px; line-height:1.5; margin-top:22px; border-top:1px solid var(--line); padding-top:12px}
+  footer code{background:var(--card2); padding:1px 5px; border-radius:5px; font-size:11px}
+  .legend{display:flex; gap:12px; flex-wrap:wrap; margin:6px 0 2px; font-size:12px}
+  .legend span{display:inline-flex; gap:5px; align-items:center}
+  .sw{width:13px;height:13px;border-radius:4px;display:inline-block}
+  details{margin-top:8px}
+  summary{cursor:pointer; color:var(--accent); font-size:12px}
+  .hidden{display:none !important}
+</style>
+</head>
+<body class="f-all">
+<header class="top">
+  <div class="hrow">
+    <h1>PLDI 2026 — Wed Jun 17</h1>
+    <span class="sub">Boulder · Prologos-prioritized</span>
+    <span class="clock" id="clock">--:--</span>
+  </div>
+  <div id="nowbar"><span class="dot"></span><span id="nb-cur"><b>Loading…</b></span><span class="nb-next" id="nb-next"></span></div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="priority filter">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="hm">H + M</button>
+      <button data-f="h">H only</button>
+    </div>
+    <div class="seg" role="group" aria-label="view">
+      <button data-v="agenda" aria-pressed="true">Agenda</button>
+      <button data-v="matrix">Matrix</button>
+    </div>
+    <button class="jumpnow" id="jumpnow">Jump to now</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ROUTE -->
+  <section id="route">
+    <h2 class="sec">Your route — the Prologos-optimal walk</h2>
+    <div class="card route" id="routecard"></div>
+    <div class="clash" style="margin-top:10px">
+      <b>⚠ The day's one real clash — 17:10.</b> In the Type Systems block (F4) the H talks run back-to-back, but
+      <b>Optimism in Equality Saturation</b> (Willsey — squarely SRE / PReduce e-graph territory) is in <b>F2 at 17:10</b>,
+      head-to-head with <b>Typestate via Revocable Capabilities</b> (F4, 17:10).
+      Default: camp in F4 for all 4 H talks. If the e-graph cost-extraction line is your hot path right now, duck to F2 at 17:10 for Optimism, then slip back to F4 at 17:30 for Implicit Parameters — that trade costs you Typestate.
+    </div>
+  </section>
+
+  <!-- AGENDA -->
+  <section id="agenda-sec">
+    <h2 class="sec">Full agenda — today</h2>
+    <div id="agenda"></div>
+  </section>
+
+  <!-- MATRIX -->
+  <section id="matrix-sec" class="hidden">
+    <h2 class="sec">Matrix — time × room (opportunity cost at a glance)</h2>
+    <div id="matrix"></div>
+    <p style="color:var(--muted);font-size:12px">Each cell is the talk in that room at that time, shaded by Prologos priority. Scroll sideways. ★ = H.</p>
+  </section>
+
+  <footer>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--H)"></i> H — direct Prologos overlap</span>
+      <span><i class="sw" style="background:var(--M)"></i> M — adjacent / instructive</span>
+      <span><i class="sw" style="background:var(--Lbg);border:1px solid var(--Lbd)"></i> L — tangential</span>
+      <span><i class="sw" style="background:var(--key)"></i> Keynote</span>
+    </div>
+    <p><b>Verified live 2026-06-17</b> against the official program
+      (<a href="https://pldi26.sigplan.org/program/program-pldi-2026/">program</a> +
+      <a href="https://pldi26.sigplan.org/track/pldi-2026-papers">papers track</a>).
+      Priority &amp; alignment notes carried over from your May rubric
+      (<code>build-pldi-sheet.py</code>).</p>
+    <details>
+      <summary>What changed vs. the May spreadsheet</summary>
+      <p style="margin-top:6px">
+        • A <b>plenary keynote was added</b>: 09:00 Saman Amarasinghe (MIT), "PL Design &amp; Implementation for the ML Era."<br>
+        • <b>All times shifted</b>: morning sessions are now 11:00–12:40 (was 10:30); afternoon blocks are 14:00–15:40 and 16:10–17:50 (was 13:40 / 15:50).<br>
+        • <b>Static Analysis 1</b> moved to <b>Flatirons 4</b> and dropped its 5th talk (now 4). <b>Abstract Interpretation</b> dropped "Path-Sensitive AI for WCET" and reordered (now 4; Optimism at 17:10). <b>Concurrency</b> is 4 talks.<br>
+        • The marquee <b>Type Systems</b> session (4 H talks) is confirmed <b>today, 16:10–17:50, F4</b> — not Friday. (One scrape pass mis-reported Friday; the day-scoped checks all say Wednesday, and Friday's late-F4 slot is a different "Runtime Memory &amp; Control Abstractions" session.)<br>
+        • <b>No evening program</b> (poster session / reception / dinner) is listed for Wednesday after 17:50 — dinner is on your own.
+      </p>
+    </details>
+    <p style="margin-top:8px;color:var(--muted)">This file is fully offline. AirDrop it to your phone, or serve <code>outside/</code> on the laptop
+      (<code>python3 -m http.server</code>) and open it over wifi.</p>
+  </footer>
+</div>
+
+<script>
+const DATA = {
+  date: "2026-06-17",
+  events: [
+    {type:"misc", s:"07:30", e:"08:30", title:"Breakfast Meet &amp; Greet", loc:"Alpine Modern Café"},
+    {type:"misc", s:"08:00", e:"09:00", title:"Registration Desk Open", loc:"Flatirons Foyer"},
+    {type:"keynote", s:"09:00", e:"10:10", title:"Keynote — Saman Amarasinghe (MIT)",
+      sub:"“Programming Language Design &amp; Implementation for the Machine Learning Era: A Personal Perspective”", loc:"Flatirons 2+3+4 · plenary"},
+    {type:"break", s:"10:10", e:"11:00", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"block", s:"11:00", e:"12:40", label:"Morning", rec:"Flatirons 2", rooms:[
+      {room:"Flatirons 2", session:"Mechanized Program Logics &amp; Verification", chair:"Yusuke Matsushita", talks:[
+        {t:"11:00", p:"M", ti:"A Deductive System for Contract Satisfaction Proofs", who:"Correnson, Zeng, Hofmann", why:"Deductive systems; contract proofs"},
+        {t:"11:20", p:"M", ti:"A Mechanized Algebra of Verified Data Structures (Sparse Tensors)", who:"Liu, Bernstein, Kamil, Chlipala, Ragan-Kelley", why:"Algebraic data structures + verification — algebraic substrate"},
+        {t:"11:40", p:"M", ti:"Iris-WasmFX: Modular Reasoning for Wasm Stack Switching", who:"Legoupil, Pedersen, Birkedal, Lindley, Pichon-Pharabod", why:"Modular reasoning; effect handlers via stack switching"},
+        {t:"12:00", p:"M", ti:"Code-Specify-Test-Debug-Prove (Separation Logic in workflows)", who:"Aamer, …, Pierce, Sewell", why:"Sep-logic workflow integration; tooling angle"},
+        {t:"12:20", p:"H", ti:"Cerisier: A Program Logic for Attestation in a Capability Machine", who:"Rousseau, Van Strydonck, Keuchel, Devriese, Birkedal", why:"Capability machines — a Prologos load-bearing concept"}
+      ]},
+      {room:"Flatirons 3", session:"Specification Synthesis &amp; Verification", chair:"John Regehr", talks:[
+        {t:"11:00", p:"M", ti:"Counterexample-Guided Inference of Modular Specifications", who:"Hallahan, Jhala, Piskac", badge:"OOPSLA'25", why:"CEGIS inference; refinement-type inference analog"},
+        {t:"11:20", p:"L", ti:"Choose, Don't Label: Multiple-Choice Query Synthesis", who:"Barnaby, Ding, Bastani, Dillig", why:""},
+        {t:"11:40", p:"M", ti:"Presynthesis: Scaling Synthesis with Finer Abstract Semantics", who:"Dong, Wu, Ding, Guo, Ji, Wang", why:"Abstract semantics + synthesis; lattice connection"},
+        {t:"12:00", p:"L", ti:"Verification Modulo Tested Library Contracts", who:"Uppar, …, Murali", why:""},
+        {t:"12:20", p:"L", ti:"Expecto: Extracting Formal Specs from Natural Language", who:"Lee, Heo", why:""}
+      ]},
+      {room:"Flatirons 4", session:"Quantum Computing", chair:"Sara Achour", talks:[
+        {t:"11:00", p:"L", ti:"Verification of Recursively Defined Quantum Circuits", who:"Ying, Zhang", badge:"Distinguished", why:""},
+        {t:"11:20", p:"L", ti:"SAQR-QC: Scalable Approximate Quantitative Reasoning", who:"Yu, Palsberg, Reps", why:""},
+        {t:"11:40", p:"L", ti:"Hybrid Path-Sums for Hybrid Quantum Programs", who:"Chareton, Bardin, Issa, Nguyen, Blanco", why:""},
+        {t:"12:00", p:"L", ti:"VyZX: Formal Verification of a Graphical Quantum Language", who:"Lehmann, Caldwell, Shah, Spencer, Rand", badge:"TOPLAS", why:""},
+        {t:"12:20", p:"L", ti:"Cobble: Compiling Block Encodings for Quantum Linear Algebra", who:"Charles Yuan", badge:"Distinguished", why:""}
+      ]}
+    ]},
+    {type:"misc", s:"12:40", e:"14:00", title:"Lunch  ·  SIGPLAN-M Mentoring Lunch", loc:"Flatirons 1"},
+    {type:"block", s:"14:00", e:"15:40", label:"Afternoon I", rec:"Flatirons 4",
+      recnote:"Open in F4 for the closure-opt H, then hop to F2 after 14:40 for the two M's.", rooms:[
+      {room:"Flatirons 2", session:"Networking &amp; Distributed Systems", chair:"Mae Milano", talks:[
+        {t:"14:00", p:"M", ti:"A Formally Verified Foundation for Compositional Heterogeneous Coherence", who:"Zhang, Goens, Sorin, Nagarajan", why:"Compositional memory coherence; module composition"},
+        {t:"14:20", p:"L", ti:"MatchBox: A Semantic Foundation for Data Plane Portability", who:"Campbell, Zhang, Saxena, Akella, Dillig", badge:"Distinguished", why:""},
+        {t:"14:40", p:"L", ti:"SureDistrib: Almost-Sure Termination of Byzantine Protocols", who:"Qiu, Xiao, Shin, Shao", why:""},
+        {t:"15:00", p:"M", ti:"Implementability of Global Distributed Protocols Modulo Network Architectures", who:"Elaine Li, Thomas Wies", why:"Global/local protocol projection — choreographic / session-typed thinking"},
+        {t:"15:20", p:"M", ti:"Weighted NetKAT: Quantitative Network Verification", who:"Suárez Acevedo, …, Foster, Silva", why:"Weighted KAT, quantitative semantics; algebraic"}
+      ]},
+      {room:"Flatirons 3", session:"Concurrency", chair:"Shoaib Kamil", talks:[
+        {t:"14:00", p:"L", ti:"State Space Estimation for DPOR-Based Model Checkers", who:"Balasubramanian et al.", why:""},
+        {t:"14:20", p:"L", ti:"Fixed Parameter Tractable Linearizability Monitoring", who:"Lee, Mathur", why:""},
+        {t:"14:40", p:"L", ti:"SuperCollider: Scalable Data Race Detection for CUDA", who:"Stephenson et al.", why:""},
+        {t:"15:00", p:"L", ti:"Fast Atomicity Monitoring", who:"Tunç, Dong, Pavlogiannis", why:""}
+      ]},
+      {room:"Flatirons 4", session:"Static Analysis 1", chair:"Milijana Surbatovich", talks:[
+        {t:"14:00", p:"H", ti:"Flow-Analysis-Based Closure Optimization", who:"John Reppy, Olin Shivers, Byron Zhong", why:"Closure analysis — Shivers' CFA lineage; dataflow core"},
+        {t:"14:20", p:"M", ti:"SSA without Dominance for Higher-Order Programs", who:"Leißa, Griebler", why:"SSA + higher-order; IR-relevant for compiler design"},
+        {t:"14:40", p:"L", ti:"Analyzing Bytes: Pre-Disassembly Static Binary Analysis", who:"Nguyen, Priyadarshan, Jiang, Sekar", why:""},
+        {t:"15:00", p:"L", ti:"Exploiting Sophisticated Static Analysis for Verilog", who:"Chen et al. (Nanjing)", why:""}
+      ]}
+    ]},
+    {type:"break", s:"15:40", e:"16:10", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"block", s:"16:10", e:"17:50", label:"Afternoon II", rec:"Flatirons 4", star:true,
+      recnote:"The day's anchor — 4 H talks back-to-back. See the 17:10 clash note above.", rooms:[
+      {room:"Flatirons 2", session:"Abstract Interpretation", chair:"Mukund Raghothaman", talks:[
+        {t:"16:10", p:"M", ti:"SAIL: Sound Abstract Interpreters with LLMs", who:"Gu, Singh, Singh", why:"AI synthesis methodology"},
+        {t:"16:30", p:"M", ti:"Evolving Abstract Transformers for Gradient-Guided, Adaptable AI", who:"Gomber, Banerjee, Singh", why:"Adaptive abstract transformers; lattice machinery"},
+        {t:"16:50", p:"M", ti:"Abstract Interpretation with Confidence", who:"Shi, Jin, Zhang", why:"Probabilistic AI; lattice + probability"},
+        {t:"17:10", p:"H", ti:"Optimism in Equality Saturation", who:"Arbore, Cheung, Willsey", why:"E-graphs + AI optimism — direct SRE / PReduce overlap (clashes w/ Typestate)"}
+      ]},
+      {room:"Flatirons 3", session:"GPU Programming", chair:"Gilbert Louis Bernstein", talks:[
+        {t:"16:10", p:"M", ti:"Kuiper: GPU Programming with Dependent Types &amp; Separation Logic", who:"Martínez, Köpcke, Fiala, Ebner, …, Sorensen, Swamy", why:"Dependent types + sep logic in practice"},
+        {t:"16:30", p:"M", ti:"Modular GPU Programming with Typed Perspectives", who:"Bansal, Sainati, Cutler, Amarasinghe, Ragan-Kelley", badge:"Distinguished", why:"Typed module perspectives"},
+        {t:"16:50", p:"M", ti:"StreamAlloc: Transforming CUDA for Asynchronous Execution", who:"Basu, Vedurada", badge:"TOPLAS", why:""},
+        {t:"17:10", p:"M", ti:"SIMT-Step Execution: Operational Semantics for GPU Subgroups", who:"Chen, Rehman, Martínez, Sorensen", why:""},
+        {t:"17:30", p:"L", ti:"Uniformity Analysis in the WebGPU Shading Language", who:"Lee-Jones, Wickerson, Donaldson", why:""}
+      ]},
+      {room:"Flatirons 4", session:"Type Systems", chair:"Eleftherios Ioannidis", talks:[
+        {t:"16:10", p:"H", ti:"Probabilistic Refinement Session Types", who:"Qiancheng Fu, Ankush Das, Marco Gaboardi", badge:"PLDI'25", why:"Session types + refinement — Prologos session-types core"},
+        {t:"16:30", p:"H", ti:"Complete the Cycle: Reachability Types with Expressive Cyclic References", who:"Deng, He, Jia, Bao, Rompf", badge:"OOPSLA'25", why:"Reachability types — capabilities / QTT adjacent"},
+        {t:"16:50", p:"M", ti:"Backwards-Compatible Row-Based Exceptions in ML", who:"van Collem, de Vilhena, Krebbers", why:"Row types + effects/exceptions"},
+        {t:"17:10", p:"H", ti:"Typestate via Revocable Capabilities", who:"Jia, Liu, He, Deng, Bao, Rompf", why:"Capabilities + typestate — core overlap (clashes w/ Optimism)"},
+        {t:"17:30", p:"H", ti:"Syntactic Implicit Parameters with Static Overloading", who:"Daan Leijen, Tim Whiting", why:"Implicit-param resolution + overloading — trait/dict resolution analog"}
+      ]}
+    ]},
+    {type:"misc", s:"17:50", e:"", title:"No evening program listed — dinner on your own", loc:""}
+  ],
+  route: [
+    {when:"09:00", rm:"Plenary", k:"K", dz:"Keynote — Amarasinghe, ML-era PL. It's the keynote; go. (Tangential to Prologos, but plenary.)"},
+    {when:"11:00", rm:"Flatirons 2", dz:"Mechanized Program Logics. Sit for the M's; the payoff is <b>Cerisier — capabilities, 12:20</b>. If you pop in for one talk, that's it.", h:"12:20 Cerisier"},
+    {when:"12:40", rm:"Lunch", dz:"Flatirons 1 (SIGPLAN-M mentoring tables there too)."},
+    {when:"14:00", rm:"Flatirons 4 → 2", dz:"Open in F4 for <b>Reppy/Shivers closure optimization (H, 14:00)</b> + SSA-without-dominance (M). F4 drops to L after 14:40 — hop to <b>F2</b> for Implementability (M, 15:00) + <b>Weighted NetKAT (M, 15:20)</b>.", h:"14:00 Closure Opt"},
+    {when:"16:10", rm:"Flatirons 4", dz:"<b>Type Systems</b> — the anchor. Session Types (H) → Reachability Types (H) → [Row Exceptions, M] → Typestate/Capabilities (H) → Implicit Params (H). ⚠ 17:10 Optimism-in-Equality-Saturation clash (F2).", h:"4× H"}
+  ]
+};
+
+/* ---------- render ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const mins = t => { if(!t) return null; const [h,m]=t.split(":").map(Number); return h*60+m; };
+const esc = s => s; // strings already HTML-safe in DATA
+
+// route
+$("#routecard").innerHTML = DATA.route.map(r=>`
+  <div class="step">
+    <div class="when">${r.when}</div>
+    <div class="what">
+      <div class="rm">${r.rm}${r.k?`<span class="pill K">KEYNOTE</span>`:""}${r.h?`<span class="pill H">${r.h}</span>`:""}</div>
+      <div class="dz">${r.dz}</div>
+    </div>
+  </div>`).join("");
+
+// agenda
+const TAG = {H:"H",M:"M",L:"L"};
+function talkHTML(t){
+  return `<div class="talk p-${t.p}" data-s="${mins(t.t)}">
+    <div class="tt">${t.t}</div>
+    <div class="tbody">
+      <span class="tag">${TAG[t.p]}</span><span class="ti">${t.ti}</span>${t.badge?`<span class="badge">${t.badge}</span>`:""}
+      <div class="who">${t.who}</div>
+      ${t.why?`<div class="why">${t.why}</div>`:""}
+    </div>
+  </div>`;
+}
+function roomHTML(rm, recName, blockStart, blockEnd){
+  const isRec = rm.room===recName;
+  const onlyLow = rm.talks.every(t=>t.p==="L");
+  const collapsed = onlyLow ? "collapsed" : "";
+  return `<div class="room ${isRec?"rec":""} ${onlyLow?"only-low":""} ${collapsed}" data-bs="${blockStart}" data-be="${blockEnd}">
+    <div class="rhead"><span class="rname">${rm.room.replace("Flatirons","F")}</span><span class="rsess">${rm.session}</span><span class="chev">▾</span></div>
+    <div class="chair">chair · ${rm.chair}</div>
+    <div class="talks">${rm.talks.map(talkHTML).join("")}</div>
+  </div>`;
+}
+function blockHTML(ev){
+  const star = ev.star ? " ★" : "";
+  const rn = ev.recnote ? `<div style="color:var(--muted);font-size:12.5px;margin:2px 2px 8px">↳ ${ev.recnote}</div>` : "";
+  return `<div class="block" data-s="${mins(ev.s)}" data-e="${mins(ev.e)}">
+    <div class="bhead"><span class="bt">${ev.label}${star}</span><span class="bw">${ev.s}–${ev.e}</span></div>
+    ${rn}
+    <div class="rooms">${ev.rooms.map(r=>roomHTML(r, ev.rec, mins(ev.s), mins(ev.e))).join("")}</div>
+  </div>`;
+}
+function miscHTML(ev){
+  const cls = ev.type==="keynote" ? "keynote" : ev.type;
+  if(ev.type==="keynote"){
+    return `<div class="ev keynote" data-s="${mins(ev.s)}" data-e="${mins(ev.e)}">
+      <span class="pill K" style="margin:0 0 4px">KEYNOTE</span>
+      <div class="kt">${ev.s}–${ev.e} · ${ev.title}</div>
+      <div style="margin-top:3px">${ev.sub}</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:3px">${ev.loc}</div>
+    </div>`;
+  }
+  return `<div class="ev ${cls}" data-s="${mins(ev.s)}" data-e="${ev.e?mins(ev.e):''}">
+    <span class="time">${ev.s}${ev.e?"–"+ev.e:""}</span><span>${ev.title}${ev.loc?` · <span style="opacity:.85">${ev.loc}</span>`:""}</span>
+  </div>`;
+}
+$("#agenda").innerHTML = DATA.events.map(ev => ev.type==="block" ? blockHTML(ev) : miscHTML(ev)).join("");
+
+// matrix (paper blocks only)
+function matrixHTML(){
+  const blocks = DATA.events.filter(e=>e.type==="block");
+  let html = "";
+  for(const b of blocks){
+    const times = [...new Set(b.rooms.flatMap(r=>r.talks.map(t=>t.t)))].sort();
+    html += `<div class="mxwrap" style="margin:10px 0"><table class="mx">
+      <thead><tr><th>${b.label}<br><span style="font-weight:400;color:var(--muted)">${b.s}–${b.e}</span></th>
+      ${b.rooms.map(r=>`<th>${r.room.replace("Flatirons","F")}<br><span style="font-weight:400">${r.session}</span></th>`).join("")}</tr></thead><tbody>`;
+    for(const tm of times){
+      html += `<tr><td class="t">${tm}</td>`;
+      for(const r of b.rooms){
+        const tk = r.talks.find(t=>t.t===tm);
+        if(!tk){ html += `<td class="L"></td>`; continue; }
+        const star = tk.p==="H" ? "★ " : "";
+        html += `<td class="${tk.p}"><span class="mh">${star}</span>${tk.ti}<div class="rm">${tk.who}</div></td>`;
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+  return html;
+}
+$("#matrix").innerHTML = matrixHTML();
+
+/* ---------- interactions ---------- */
+// collapse rooms
+$("#agenda").addEventListener("click", e=>{
+  const h = e.target.closest(".rhead");
+  if(h) h.parentElement.classList.toggle("collapsed");
+});
+// filter
+document.querySelectorAll(".seg button[data-f]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".seg button[data-f]").forEach(b=>b.setAttribute("aria-pressed","false"));
+    btn.setAttribute("aria-pressed","true");
+    document.body.classList.remove("f-all","f-hm","f-h");
+    document.body.classList.add("f-"+btn.dataset.f);
+  });
+});
+// view toggle
+document.querySelectorAll(".seg button[data-v]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".seg button[data-v]").forEach(b=>b.setAttribute("aria-pressed","false"));
+    btn.setAttribute("aria-pressed","true");
+    const ag = btn.dataset.v==="agenda";
+    $("#agenda-sec").classList.toggle("hidden", !ag);
+    $("#matrix-sec").classList.toggle("hidden", ag);
+  });
+});
+
+/* ---------- live clock + NOW ---------- */
+function pad(n){return String(n).padStart(2,"0")}
+function tick(){
+  const now = new Date();
+  const localDate = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const mNow = now.getHours()*60 + now.getMinutes();
+  $("#clock").textContent = pad(now.getHours())+":"+pad(now.getMinutes());
+
+  // current event
+  let cur=null, curEl=null;
+  document.querySelectorAll("#agenda [data-s]").forEach(el=>{
+    const s=+el.dataset.s, e=el.dataset.e===""?null:+el.dataset.e;
+    if(e!=null && mNow>=s && mNow<e && (el.classList.contains("block")||el.classList.contains("ev"))){ cur=el; }
+  });
+  // highlight current talk
+  document.querySelectorAll(".talk.now").forEach(t=>t.classList.remove("now"));
+  let curTalkTxt=null;
+  document.querySelectorAll("#agenda .block").forEach(bl=>{
+    const bs=+bl.dataset.s, be=+bl.dataset.e;
+    if(mNow>=bs && mNow<be){
+      // find the 20-min slot
+      bl.querySelectorAll(".talk").forEach(tk=>{
+        const ts=+tk.dataset.s, te=ts+20;
+        if(mNow>=ts && mNow<te){ tk.classList.add("now"); }
+      });
+    }
+  });
+
+  // NOW bar text
+  const off = (localDate!==DATA.date);
+  let curTxt;
+  const block = [...document.querySelectorAll("#agenda .block")].find(b=>mNow>=+b.dataset.s && mNow<+b.dataset.e);
+  if(block){
+    const rec = block.querySelector(".room.rec .rsess");
+    const lbl = block.querySelector(".bt").textContent;
+    const nowTalk = block.querySelector(".room.rec .talk.now .ti") || block.querySelector(".talk.now .ti");
+    curTxt = `<b>NOW · ${lbl}</b> — pick: ${rec?rec.textContent:""}` + (nowTalk?` · <i>${nowTalk.textContent}</i>`:"");
+  } else {
+    const mev = [...document.querySelectorAll("#agenda .ev")].find(b=>b.dataset.e!=="" && mNow>=+b.dataset.s && mNow<+b.dataset.e);
+    if(mev){ curTxt = `<b>NOW</b> — ${mev.querySelector(".kt")?mev.querySelector(".kt").textContent:mev.textContent.trim()}`; }
+    else { curTxt = `<b>No session in progress.</b>`; }
+  }
+  if(off) curTxt += ` <span style="color:var(--muted)">(showing Wed Jun 17; device shows ${localDate})</span>`;
+  $("#nb-cur").innerHTML = curTxt;
+
+  // next H talk
+  let next=null;
+  document.querySelectorAll("#agenda .talk.p-H").forEach(tk=>{
+    const ts=+tk.dataset.s;
+    if(ts>mNow && (!next || ts<next.s)) next={s:ts, el:tk};
+  });
+  if(next){
+    const d = next.s - mNow;
+    const ti = next.el.querySelector(".ti").textContent;
+    const room = next.el.closest(".room").querySelector(".rname").textContent;
+    $("#nb-next").innerHTML = `next H in ${d}m<br>${room} · ${ti.length>30?ti.slice(0,30)+"…":ti}`;
+  } else { $("#nb-next").textContent = ""; }
+}
+function jumpNow(){
+  const block = [...document.querySelectorAll("#agenda .block, #agenda .ev")].find(b=>{
+    const s=+b.dataset.s, e=b.dataset.e===""?null:+b.dataset.e;
+    const now = new Date().getHours()*60+new Date().getMinutes();
+    return e!=null && now>=s && now<e;
+  });
+  (block||document.querySelector("#route")).scrollIntoView({behavior:"smooth", block:"start"});
+}
+$("#jumpnow").addEventListener("click", jumpNow);
+tick(); setInterval(tick, 30000);
+</script>
+</body>
+</html>
