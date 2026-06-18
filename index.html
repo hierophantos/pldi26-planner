@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PLDI 2026 · Wed Jun 17 · Prologos plan</title>
+<title>PLDI 2026 · Prologos plan</title>
 <style>
   :root{
     --bg:#0e1116; --card:#171b22; --card2:#1d222b; --ink:#e8ecf2; --muted:#9aa6b6;
@@ -27,52 +27,46 @@
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
+  body{margin:0; background:var(--bg); color:var(--ink);
     font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    padding:0 0 64px; -webkit-font-smoothing:antialiased;
-  }
+    padding:0 0 64px; -webkit-font-smoothing:antialiased}
   a{color:var(--accent)}
   .wrap{max-width:760px; margin:0 auto; padding:0 12px}
-
-  header.top{
-    position:sticky; top:0; z-index:30; background:var(--bg);
-    border-bottom:1px solid var(--line); padding-top:max(8px,env(safe-area-inset-top));
-  }
-  .hrow{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; padding:8px 12px 6px}
-  .hrow h1{font-size:17px; margin:0; letter-spacing:.2px}
+  header.top{position:sticky; top:0; z-index:30; background:var(--bg);
+    border-bottom:1px solid var(--line); padding-top:max(8px,env(safe-area-inset-top))}
+  .hrow{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; padding:8px 12px 4px}
+  .hrow h1{font-size:16px; margin:0; letter-spacing:.2px}
   .hrow .sub{color:var(--muted); font-size:12px}
   .clock{margin-left:auto; font-variant-numeric:tabular-nums; font-weight:600; color:var(--accent); font-size:14px}
 
-  /* NOW bar */
-  #nowbar{
-    margin:0 12px 8px; padding:8px 10px; border-radius:10px;
-    background:var(--card2); border:1px solid var(--line); font-size:13px;
-    display:flex; gap:8px; align-items:center;
-  }
-  #nowbar .dot{width:8px;height:8px;border-radius:50%;background:var(--now);box-shadow:0 0 0 0 var(--now);animation:p 2s infinite}
+  .dayseg{display:flex; gap:6px; padding:2px 12px 8px}
+  .dayseg button{flex:1; background:var(--card2); color:var(--muted); border:1px solid var(--line);
+    border-radius:10px; padding:7px 4px; font-size:12.5px; font-weight:700; cursor:pointer; position:relative}
+  .dayseg button .dnum{font-size:10px; font-weight:600; display:block; color:inherit; opacity:.8}
+  .dayseg button[aria-pressed=true]{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .dayseg button.today::after{content:""; position:absolute; top:5px; right:6px; width:6px; height:6px;
+    border-radius:50%; background:var(--now)}
+
+  #nowbar{margin:0 12px 8px; padding:8px 10px; border-radius:10px; background:var(--card2);
+    border:1px solid var(--line); font-size:13px; display:flex; gap:8px; align-items:center}
+  #nowbar .dot{width:8px;height:8px;border-radius:50%;background:var(--now);animation:p 2s infinite; flex:0 0 auto}
   @keyframes p{0%{box-shadow:0 0 0 0 rgba(255,84,112,.5)}70%{box-shadow:0 0 0 7px rgba(255,84,112,0)}100%{box-shadow:0 0 0 0 rgba(255,84,112,0)}}
   #nowbar b{color:var(--ink)}
-  #nowbar .nb-next{color:var(--muted); margin-left:auto; text-align:right}
+  #nowbar .nb-next{color:var(--muted); margin-left:auto; text-align:right; flex:0 0 auto}
 
-  /* controls */
   .controls{display:flex; gap:6px; padding:0 12px 8px; flex-wrap:wrap; align-items:center}
   .seg{display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden}
   .seg button{background:transparent; color:var(--muted); border:0; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer}
   .seg button[aria-pressed=true]{background:var(--accent); color:#fff}
   .jumpnow{margin-left:auto; background:var(--card2); border:1px solid var(--line); color:var(--ink); border-radius:9px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer}
 
-  /* filter dims L away */
   body.f-h .p-L, body.f-h .p-M{display:none}
   body.f-hm .p-L{display:none}
-  body.f-h .room.only-low, body.f-hm .room.only-low{opacity:.5}
 
   section{margin:14px 0}
   h2.sec{font-size:13px; text-transform:uppercase; letter-spacing:.10em; color:var(--muted); margin:0 0 8px; padding:0 2px}
-
   .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 13px; margin:10px 0}
 
-  /* route */
   .route .step{display:flex; gap:10px; padding:9px 0; border-bottom:1px dashed var(--line)}
   .route .step:last-child{border-bottom:0}
   .route .when{flex:0 0 56px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent); font-size:13px}
@@ -81,24 +75,19 @@
   .route .what .dz{color:var(--muted); font-size:13px; margin-top:2px}
   .pill{display:inline-block; font-size:10.5px; font-weight:800; padding:1px 6px; border-radius:6px; vertical-align:middle; margin-left:4px}
   .pill.H{color:var(--H); background:var(--Hbg); border:1px solid var(--Hbd)}
-  .pill.M{color:var(--M); background:var(--Mbg); border:1px solid var(--Mbd)}
   .pill.K{color:var(--key); background:var(--keybg); border:1px solid var(--keybd)}
-
-  .clash{background:var(--Mbg); border:1px solid var(--Mbd); border-radius:12px; padding:10px 12px; font-size:13.5px}
+  .clash{background:var(--Mbg); border:1px solid var(--Mbd); border-radius:12px; padding:10px 12px; font-size:13px; margin-top:10px}
   .clash b{color:var(--M)}
 
-  /* agenda */
   .ev{margin:8px 0}
   .ev.misc, .ev.break{display:flex; gap:10px; align-items:baseline; padding:7px 12px; color:var(--muted); font-size:13px; border-left:3px solid var(--line); margin-left:2px}
   .ev.break{font-style:italic}
   .ev.keynote{padding:11px 13px; border-radius:14px; background:var(--keybg); border:1px solid var(--keybd)}
   .ev.keynote .kt{font-weight:700}
   .ev .time{flex:0 0 96px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent); font-size:13px}
-
   .block > .bhead{display:flex; align-items:baseline; gap:8px; margin:18px 2px 6px}
   .block > .bhead .bt{font-weight:800; font-size:15px}
   .block > .bhead .bw{color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums}
-
   .rooms{display:grid; grid-template-columns:1fr; gap:10px}
   .room{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden}
   .room.rec{border-color:var(--Hbd); box-shadow:0 0 0 1px var(--Hbd) inset}
@@ -125,11 +114,9 @@
   .talk .why{color:var(--H); font-size:11.5px; margin-top:2px}
   .p-M .why{color:var(--M)}
   .badge{font-size:10px; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:0 4px; margin-left:4px}
-
   .talk.now{outline:2px solid var(--now); outline-offset:1px; background:rgba(255,84,112,.06)}
 
-  /* matrix — full-day grid: times as rows, rooms as columns */
-  #matrix{margin-top:2px}
+  /* matrix grid */
   #matrix .mb-band{border:1px solid var(--line); background:var(--card2); color:var(--muted);
     border-radius:9px; padding:6px 9px; margin:7px 0; font-size:11.5px}
   #matrix .mb-band b{color:var(--ink); font-variant-numeric:tabular-nums}
@@ -140,7 +127,6 @@
   #matrix .grid-row{display:grid; grid-template-columns:42px 1fr 1fr 1fr; gap:4px; margin-bottom:4px}
   #matrix .mb-head .rh{font-size:10px; font-weight:800; letter-spacing:.02em; color:var(--muted);
     background:var(--card2); border:1px solid var(--line); border-radius:7px; padding:4px 5px; line-height:1.2}
-  #matrix .mb-head .rhx{}
   #matrix .mt{font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums;
     display:flex; align-items:center; justify-content:center}
   #matrix .mc{border:1px solid var(--line); border-radius:8px; padding:5px 6px; font-size:11px;
@@ -164,7 +150,7 @@
   #matrix .mc.best.bh{box-shadow:inset 0 0 0 2px var(--H)}
   #matrix .mc.now{outline:2px solid var(--now); outline-offset:1px}
   #matrix .mt.now{color:var(--now); font-weight:800}
-  #matrix .mxleg{display:flex; gap:10px 14px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin:4px 2px 0}
+  #matrix .mxleg{display:flex; gap:10px 14px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin:8px 2px 0}
   #matrix .mxleg b{color:var(--ink)}
 
   footer{color:var(--muted); font-size:12px; line-height:1.5; margin-top:22px; border-top:1px solid var(--line); padding-top:12px}
@@ -180,10 +166,11 @@
 <body class="f-all">
 <header class="top">
   <div class="hrow">
-    <h1>PLDI 2026 — Wed Jun 17</h1>
+    <h1 id="dayTitle">PLDI 2026</h1>
     <span class="sub">Boulder · Prologos-prioritized</span>
     <span class="clock" id="clock">--:--</span>
   </div>
+  <div class="dayseg" id="dayseg"></div>
   <div id="nowbar"><span class="dot"></span><span id="nb-cur"><b>Loading…</b></span><span class="nb-next" id="nb-next"></span></div>
   <div class="controls">
     <div class="seg" role="group" aria-label="priority filter">
@@ -200,24 +187,16 @@
 </header>
 
 <div class="wrap">
-
-  <!-- ROUTE -->
   <section id="route">
     <h2 class="sec">Your route — the Prologos-optimal walk</h2>
     <div class="card route" id="routecard"></div>
-    <div class="clash" style="margin-top:10px">
-      <b>⚠ The day's one real clash — 17:10.</b> In the Type Systems block (F4) the H talks run back-to-back, but
-      <b>Optimism in Equality Saturation</b> (Willsey — squarely SRE / PReduce e-graph territory) is in <b>F2 at 17:10</b>,
-      head-to-head with <b>Typestate via Revocable Capabilities</b> (F4, 17:10).
-      Default: camp in F4 for all 4 H talks. If the e-graph cost-extraction line is your hot path right now, duck to F2 at 17:10 for Optimism, then slip back to F4 at 17:30 for Implicit Parameters — that trade costs you Typestate.
-    </div>
+    <div id="clashbox"></div>
   </section>
 
-  <!-- MATRIX -->
   <section id="matrix-sec">
     <h2 class="sec">Matrix — pick in the moment (every room, every slot)</h2>
     <div id="matrix"></div>
-    <div class="mxleg" style="margin-top:8px">
+    <div class="mxleg">
       <span><b>ring</b> = best fit for that slot</span>
       <span><b>★</b> = top H pick</span>
       <span><b>tap a cell</b> for who / why</span>
@@ -225,58 +204,66 @@
     </div>
   </section>
 
-  <!-- AGENDA -->
   <section id="agenda-sec" class="hidden">
-    <h2 class="sec">Full agenda — today</h2>
+    <h2 class="sec">Full agenda</h2>
     <div id="agenda"></div>
   </section>
 
   <footer>
     <div class="legend">
       <span><i class="sw" style="background:var(--H)"></i> H — direct Prologos overlap</span>
-      <span><i class="sw" style="background:var(--M)"></i> M — adjacent / instructive</span>
+      <span><i class="sw" style="background:var(--M)"></i> M — adjacent</span>
       <span><i class="sw" style="background:var(--Lbg);border:1px solid var(--Lbd)"></i> L — tangential</span>
       <span><i class="sw" style="background:var(--key)"></i> Keynote</span>
     </div>
-    <p><b>Verified live 2026-06-17</b> against the official program
-      (<a href="https://pldi26.sigplan.org/program/program-pldi-2026/">program</a> +
-      <a href="https://pldi26.sigplan.org/track/pldi-2026-papers">papers track</a>).
-      Priority &amp; alignment notes carried over from your May rubric
-      (<code>build-pldi-sheet.py</code>).</p>
+    <p><b>Verified 2026-06-17</b> against the official
+      <a href="https://pldi26.sigplan.org/track/pldi-2026-papers">papers track</a> +
+      <a href="https://pldi26.sigplan.org/program/program-pldi-2026/">program</a>
+      (cross-checked extraction; H/M/L per the Prologos rubric).</p>
     <details>
-      <summary>What changed vs. the May spreadsheet</summary>
+      <summary>Corrections found vs. the May draft</summary>
       <p style="margin-top:6px">
-        • A <b>plenary keynote was added</b>: 09:00 Saman Amarasinghe (MIT), "PL Design &amp; Implementation for the ML Era."<br>
-        • <b>All times shifted</b>: morning sessions are now 11:00–12:40 (was 10:30); afternoon blocks are 14:00–15:40 and 16:10–17:50 (was 13:40 / 15:50).<br>
-        • <b>Static Analysis 1</b> moved to <b>Flatirons 4</b> and dropped its 5th talk (now 4). <b>Abstract Interpretation</b> dropped "Path-Sensitive AI for WCET" and reordered (now 4; Optimism at 17:10). <b>Concurrency</b> is 4 talks.<br>
-        • The marquee <b>Type Systems</b> session (4 H talks) is confirmed <b>today, 16:10–17:50, F4</b> — not Friday. (One scrape pass mis-reported Friday; the day-scoped checks all say Wednesday, and Friday's late-F4 slot is a different "Runtime Memory &amp; Control Abstractions" session.)<br>
-        • <b>No evening program</b> (poster session / reception / dinner) is listed for Wednesday after 17:50 — dinner is on your own.
+        • <b>Keynotes</b>: Wed = Saman Amarasinghe (MIT); Thu = <b>Miryung Kim</b> (UCLA/AWS), "Happiness U-Curve"; Fri = <b>Aws Albarghouthi</b> (Wisconsin), "The Rise &amp; Collapse of a Quantum State". All 09:00–10:10, Flatirons 2+3+4.<br>
+        • <b>Times shifted</b> conference-wide: mornings 11:00–12:40; afternoons 14:00–15:40 and 16:10–17:50 (Wed/Fri). Thu afternoon is a single block 14:00–15:20.<br>
+        • <b>Thursday reshuffled</b>: "Semantics &amp; Hyperproperty Reasoning" moved to the MORNING (F4); "Generative Testing" to the afternoon (F2). Thu has only 2 paper blocks.<br>
+        • <b>Friday late block</b> (16:10–17:30) is "Optimization of Data Pipelines / Potpourri / Runtime Memory &amp; Control Abstractions" — a lossy early scrape had mis-mapped those onto the 14:00 block (which is really Verification &amp; Proof Reasoning / Probabilistic Inference / Rust Translation).<br>
+        • Several May-draft papers were dropped/unscheduled (e.g. Regexes-with-Backreferences, Redundant Array Computation Elimination, Soteria, NEURA).<br>
+        • <b>Thu evening</b>: a Conference Banquet (Chautauqua Dining Hall) + a Chautauqua hike are listed but the exact time wasn't on the program page — <b>confirm on-site</b>.
       </p>
     </details>
-    <p style="margin-top:8px;color:var(--muted)">This file is fully offline. AirDrop it to your phone, or serve <code>outside/</code> on the laptop
-      (<code>python3 -m http.server</code>) and open it over wifi.</p>
+    <p style="margin-top:8px;color:var(--muted)">Fully offline. The page opens to today automatically; switch days up top.</p>
   </footer>
 </div>
 
 <script>
-const DATA = {
-  date: "2026-06-17",
-  events: [
+/* ---------------- DATA: 3 days ---------------- */
+const DATA = { days: [
+
+/* ===================== WEDNESDAY ===================== */
+{ id:"wed", date:"2026-06-17", label:"Wed", dnum:"Jun 17",
+  note:`<div class="clash"><b>⚠ One real clash — 17:10.</b> In Type Systems (F4) the H talks run back-to-back, but <b>Optimism in Equality Saturation</b> (Willsey — SRE / PReduce e-graph territory) is in <b>F2 at 17:10</b>, opposite <b>Typestate via Revocable Capabilities</b> (F4). Default: camp in F4 for all 4 H talks. If e-graph cost-extraction is your hot path, duck to F2 at 17:10 for Optimism, then back to F4 at 17:30 for Implicit Params — costs you Typestate.</div>`,
+  route:[
+    {when:"09:00", rm:"Plenary", k:1, dz:"Keynote — Amarasinghe (MIT), ML-era PL. It's the keynote; go."},
+    {when:"11:00", rm:"Flatirons 2", dz:"Mechanized Logics. Sit for the M's; payoff is <b>Cerisier — capabilities, 12:20</b>.", h:"12:20 Cerisier"},
+    {when:"12:40", rm:"Lunch", dz:"Flatirons 1."},
+    {when:"14:00", rm:"F4 → F2", dz:"F4 for <b>Closure Optimization (H, Reppy/Shivers) 14:00</b>; after 14:40 hop to F2 for Implementability (M) + <b>Weighted NetKAT (M, 15:20)</b>.", h:"14:00 Closure Opt"},
+    {when:"16:10", rm:"Flatirons 4", dz:"<b>Type Systems</b> anchor: Session Types (H) → Reachability Types (H) → Typestate/Capabilities (H) → Implicit Params (H). ⚠ 17:10 Optimism clash (F2).", h:"4× H"}
+  ],
+  events:[
     {type:"misc", s:"07:30", e:"08:30", title:"Breakfast Meet &amp; Greet", loc:"Alpine Modern Café"},
     {type:"misc", s:"08:00", e:"09:00", title:"Registration Desk Open", loc:"Flatirons Foyer"},
-    {type:"keynote", s:"09:00", e:"10:10", title:"Keynote — Saman Amarasinghe (MIT)",
-      sub:"“Programming Language Design &amp; Implementation for the Machine Learning Era: A Personal Perspective”", loc:"Flatirons 2+3+4 · plenary"},
+    {type:"keynote", s:"09:00", e:"10:10", title:"Keynote — Saman Amarasinghe (MIT)", sub:"“PL Design &amp; Implementation for the ML Era: A Personal Perspective”", loc:"Flatirons 2+3+4 · plenary"},
     {type:"break", s:"10:10", e:"11:00", title:"Coffee Break", loc:"Flatirons Foyer"},
     {type:"block", s:"11:00", e:"12:40", label:"Morning", rec:"Flatirons 2", rooms:[
       {room:"Flatirons 2", session:"Mechanized Program Logics &amp; Verification", chair:"Yusuke Matsushita", talks:[
         {t:"11:00", p:"M", ti:"A Deductive System for Contract Satisfaction Proofs", who:"Correnson, Zeng, Hofmann", why:"Deductive systems; contract proofs"},
-        {t:"11:20", p:"M", ti:"A Mechanized Algebra of Verified Data Structures (Sparse Tensors)", who:"Liu, Bernstein, Kamil, Chlipala, Ragan-Kelley", why:"Algebraic data structures + verification — algebraic substrate"},
+        {t:"11:20", p:"M", ti:"A Mechanized Algebra of Verified Data Structures (Sparse Tensors)", who:"Liu, Bernstein, Kamil, Chlipala, Ragan-Kelley", why:"Algebraic data structures + verification"},
         {t:"11:40", p:"M", ti:"Iris-WasmFX: Modular Reasoning for Wasm Stack Switching", who:"Legoupil, Pedersen, Birkedal, Lindley, Pichon-Pharabod", why:"Modular reasoning; effect handlers via stack switching"},
-        {t:"12:00", p:"M", ti:"Code-Specify-Test-Debug-Prove (Separation Logic in workflows)", who:"Aamer, …, Pierce, Sewell", why:"Sep-logic workflow integration; tooling angle"},
+        {t:"12:00", p:"M", ti:"Code-Specify-Test-Debug-Prove (Separation Logic in workflows)", who:"Aamer, …, Pierce, Sewell", why:"Sep-logic workflow integration"},
         {t:"12:20", p:"H", ti:"Cerisier: A Program Logic for Attestation in a Capability Machine", who:"Rousseau, Van Strydonck, Keuchel, Devriese, Birkedal", why:"Capability machines — a Prologos load-bearing concept"}
       ]},
       {room:"Flatirons 3", session:"Specification Synthesis &amp; Verification", chair:"John Regehr", talks:[
-        {t:"11:00", p:"M", ti:"Counterexample-Guided Inference of Modular Specifications", who:"Hallahan, Jhala, Piskac", badge:"OOPSLA'25", why:"CEGIS inference; refinement-type inference analog"},
+        {t:"11:00", p:"M", ti:"Counterexample-Guided Inference of Modular Specifications", who:"Hallahan, Jhala, Piskac", badge:"OOPSLA'25", why:"CEGIS — refinement-type inference analog"},
         {t:"11:20", p:"L", ti:"Choose, Don't Label: Multiple-Choice Query Synthesis", who:"Barnaby, Ding, Bastani, Dillig", why:""},
         {t:"11:40", p:"M", ti:"Presynthesis: Scaling Synthesis with Finer Abstract Semantics", who:"Dong, Wu, Ding, Guo, Ji, Wang", why:"Abstract semantics + synthesis; lattice connection"},
         {t:"12:00", p:"L", ti:"Verification Modulo Tested Library Contracts", who:"Uppar, …, Murali", why:""},
@@ -290,14 +277,14 @@ const DATA = {
         {t:"12:20", p:"L", ti:"Cobble: Compiling Block Encodings for Quantum Linear Algebra", who:"Charles Yuan", badge:"Distinguished", why:""}
       ]}
     ]},
-    {type:"misc", s:"12:40", e:"14:00", title:"Lunch  ·  SIGPLAN-M Mentoring Lunch", loc:"Flatirons 1"},
+    {type:"misc", s:"12:40", e:"14:00", title:"Lunch · SIGPLAN-M Mentoring Lunch", loc:"Flatirons 1"},
     {type:"block", s:"14:00", e:"15:40", label:"Afternoon I", rec:"Flatirons 4",
       recnote:"Open in F4 for the closure-opt H, then hop to F2 after 14:40 for the two M's.", rooms:[
       {room:"Flatirons 2", session:"Networking &amp; Distributed Systems", chair:"Mae Milano", talks:[
         {t:"14:00", p:"M", ti:"A Formally Verified Foundation for Compositional Heterogeneous Coherence", who:"Zhang, Goens, Sorin, Nagarajan", why:"Compositional memory coherence; module composition"},
         {t:"14:20", p:"L", ti:"MatchBox: A Semantic Foundation for Data Plane Portability", who:"Campbell, Zhang, Saxena, Akella, Dillig", badge:"Distinguished", why:""},
         {t:"14:40", p:"L", ti:"SureDistrib: Almost-Sure Termination of Byzantine Protocols", who:"Qiu, Xiao, Shin, Shao", why:""},
-        {t:"15:00", p:"M", ti:"Implementability of Global Distributed Protocols Modulo Network Architectures", who:"Elaine Li, Thomas Wies", why:"Global/local protocol projection — choreographic / session-typed thinking"},
+        {t:"15:00", p:"M", ti:"Implementability of Global Distributed Protocols Modulo Network Architectures", who:"Elaine Li, Thomas Wies", why:"Global/local projection — choreographic / session-typed"},
         {t:"15:20", p:"M", ti:"Weighted NetKAT: Quantitative Network Verification", who:"Suárez Acevedo, …, Foster, Silva", why:"Weighted KAT, quantitative semantics; algebraic"}
       ]},
       {room:"Flatirons 3", session:"Concurrency", chair:"Shoaib Kamil", talks:[
@@ -308,14 +295,14 @@ const DATA = {
       ]},
       {room:"Flatirons 4", session:"Static Analysis 1", chair:"Milijana Surbatovich", talks:[
         {t:"14:00", p:"H", ti:"Flow-Analysis-Based Closure Optimization", who:"John Reppy, Olin Shivers, Byron Zhong", why:"Closure analysis — Shivers' CFA lineage; dataflow core"},
-        {t:"14:20", p:"M", ti:"SSA without Dominance for Higher-Order Programs", who:"Leißa, Griebler", why:"SSA + higher-order; IR-relevant for compiler design"},
+        {t:"14:20", p:"M", ti:"SSA without Dominance for Higher-Order Programs", who:"Leißa, Griebler", why:"SSA + higher-order; IR-relevant"},
         {t:"14:40", p:"L", ti:"Analyzing Bytes: Pre-Disassembly Static Binary Analysis", who:"Nguyen, Priyadarshan, Jiang, Sekar", why:""},
         {t:"15:00", p:"L", ti:"Exploiting Sophisticated Static Analysis for Verilog", who:"Chen et al. (Nanjing)", why:""}
       ]}
     ]},
     {type:"break", s:"15:40", e:"16:10", title:"Coffee Break", loc:"Flatirons Foyer"},
     {type:"block", s:"16:10", e:"17:50", label:"Afternoon II", rec:"Flatirons 4", star:true,
-      recnote:"The day's anchor — 4 H talks back-to-back. See the 17:10 clash note above.", rooms:[
+      recnote:"The day's anchor — 4 H talks. See the 17:10 clash above.", rooms:[
       {room:"Flatirons 2", session:"Abstract Interpretation", chair:"Mukund Raghothaman", talks:[
         {t:"16:10", p:"M", ti:"SAIL: Sound Abstract Interpreters with LLMs", who:"Gu, Singh, Singh", why:"AI synthesis methodology"},
         {t:"16:30", p:"M", ti:"Evolving Abstract Transformers for Gradient-Guided, Adaptable AI", who:"Gomber, Banerjee, Singh", why:"Adaptive abstract transformers; lattice machinery"},
@@ -323,7 +310,7 @@ const DATA = {
         {t:"17:10", p:"H", ti:"Optimism in Equality Saturation", who:"Arbore, Cheung, Willsey", why:"E-graphs + AI optimism — direct SRE / PReduce overlap (clashes w/ Typestate)"}
       ]},
       {room:"Flatirons 3", session:"GPU Programming", chair:"Gilbert Louis Bernstein", talks:[
-        {t:"16:10", p:"M", ti:"Kuiper: GPU Programming with Dependent Types &amp; Separation Logic", who:"Martínez, Köpcke, Fiala, Ebner, …, Sorensen, Swamy", why:"Dependent types + sep logic in practice"},
+        {t:"16:10", p:"M", ti:"Kuiper: GPU Programming with Dependent Types &amp; Separation Logic", who:"Martínez, …, Sorensen, Swamy", why:"Dependent types + sep logic in practice"},
         {t:"16:30", p:"M", ti:"Modular GPU Programming with Typed Perspectives", who:"Bansal, Sainati, Cutler, Amarasinghe, Ragan-Kelley", badge:"Distinguished", why:"Typed module perspectives"},
         {t:"16:50", p:"M", ti:"StreamAlloc: Transforming CUDA for Asynchronous Execution", who:"Basu, Vedurada", badge:"TOPLAS", why:""},
         {t:"17:10", p:"M", ti:"SIMT-Step Execution: Operational Semantics for GPU Subgroups", who:"Chen, Rehman, Martínez, Sorensen", why:""},
@@ -334,87 +321,210 @@ const DATA = {
         {t:"16:30", p:"H", ti:"Complete the Cycle: Reachability Types with Expressive Cyclic References", who:"Deng, He, Jia, Bao, Rompf", badge:"OOPSLA'25", why:"Reachability types — capabilities / QTT adjacent"},
         {t:"16:50", p:"M", ti:"Backwards-Compatible Row-Based Exceptions in ML", who:"van Collem, de Vilhena, Krebbers", why:"Row types + effects/exceptions"},
         {t:"17:10", p:"H", ti:"Typestate via Revocable Capabilities", who:"Jia, Liu, He, Deng, Bao, Rompf", why:"Capabilities + typestate — core overlap (clashes w/ Optimism)"},
-        {t:"17:30", p:"H", ti:"Syntactic Implicit Parameters with Static Overloading", who:"Daan Leijen, Tim Whiting", why:"Implicit-param resolution + overloading — trait/dict resolution analog"}
+        {t:"17:30", p:"H", ti:"Syntactic Implicit Parameters with Static Overloading", who:"Daan Leijen, Tim Whiting", why:"Implicit-param resolution + overloading — trait/dict analog"}
       ]}
     ]},
     {type:"misc", s:"17:50", e:"", title:"No evening program listed — dinner on your own", loc:""}
-  ],
-  route: [
-    {when:"09:00", rm:"Plenary", k:"K", dz:"Keynote — Amarasinghe, ML-era PL. It's the keynote; go. (Tangential to Prologos, but plenary.)"},
-    {when:"11:00", rm:"Flatirons 2", dz:"Mechanized Program Logics. Sit for the M's; the payoff is <b>Cerisier — capabilities, 12:20</b>. If you pop in for one talk, that's it.", h:"12:20 Cerisier"},
-    {when:"12:40", rm:"Lunch", dz:"Flatirons 1 (SIGPLAN-M mentoring tables there too)."},
-    {when:"14:00", rm:"Flatirons 4 → 2", dz:"Open in F4 for <b>Reppy/Shivers closure optimization (H, 14:00)</b> + SSA-without-dominance (M). F4 drops to L after 14:40 — hop to <b>F2</b> for Implementability (M, 15:00) + <b>Weighted NetKAT (M, 15:20)</b>.", h:"14:00 Closure Opt"},
-    {when:"16:10", rm:"Flatirons 4", dz:"<b>Type Systems</b> — the anchor. Session Types (H) → Reachability Types (H) → [Row Exceptions, M] → Typestate/Capabilities (H) → Implicit Params (H). ⚠ 17:10 Optimism-in-Equality-Saturation clash (F2).", h:"4× H"}
   ]
-};
+},
 
-/* ---------- render ---------- */
+/* ===================== THURSDAY ===================== */
+{ id:"thu", date:"2026-06-18", label:"Thu", dnum:"Jun 18",
+  note:`<div class="clash"><b>Morning is the only real choice.</b> F3 has the one H (<b>Contextual Embeddings — bound vars via instance resolution, 11:20</b>) plus two M's; F4 is a dense M-block on semantics / separation logic. Afternoon is unambiguous: <b>F4 Equality Saturation</b> — two H back-to-back (Versioned E-Graphs, Semantic E-Graphs for EDA). Thu ends early (15:20); <b>Conference Banquet</b> (Chautauqua) in the evening — confirm the time on-site.</div>`,
+  route:[
+    {when:"09:00", rm:"Plenary", k:1, dz:"Keynote 2 — Miryung Kim (UCLA/AWS), “Happiness U-Curve” (AI validation, conformance testing, proof-engineering)."},
+    {when:"11:00", rm:"Flatirons 3", dz:"DSL session: <b>Contextual Embeddings — bound variables via instance resolution (H, 11:20)</b>; then Diagramming (M) + Persistent Iterators (M). Alt: F4 for a dense semantics/sep-logic M-block.", h:"11:20 Contextual Embeddings"},
+    {when:"12:40", rm:"Lunch", dz:"Flatirons 1."},
+    {when:"14:00", rm:"Flatirons 4", dz:"<b>Equality Saturation</b> — the SRE/PReduce anchor: Versioned E-Graphs (H, 14:00) + Semantic E-Graphs for EDA (H, 14:20) + 2 M. Camp here.", h:"2× H e-graphs"},
+    {when:"~17:30", rm:"Banquet", dz:"Conference Banquet, Chautauqua Dining Hall (+ optional Chautauqua hike). Confirm exact time on-site."}
+  ],
+  events:[
+    {type:"misc", s:"08:00", e:"09:00", title:"Registration Desk Open", loc:"Flatirons Foyer"},
+    {type:"keynote", s:"09:00", e:"10:10", title:"Keynote 2 — Miryung Kim (UCLA / AWS)", sub:"“Happiness U-Curve: Navigating the AI Validation Bottleneck with Conformance Testing and Proof-Engineering”", loc:"Flatirons 2+3+4 · plenary"},
+    {type:"break", s:"10:10", e:"10:40", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"block", s:"11:00", e:"12:40", label:"Morning", rec:"Flatirons 3", rooms:[
+      {room:"Flatirons 2", session:"Symbolic Methods for Verification &amp; Matching", chair:"Jeffrey S. Foster", talks:[
+        {t:"11:00", p:"M", ti:"Solvable Tuple Patterns and Their Applications to Program Verification", who:"Kobayashi, Sato, Shinohara, Yoshinaka", why:"Pattern solvability; structural reasoning relevance"},
+        {t:"11:20", p:"L", ti:"An Efficient Algorithm for Streaming BPE Tokenization", who:"Mamouras, Li, Yang", why:""},
+        {t:"11:40", p:"L", ti:"Scalable Floating-Point Satisfiability via Staged Optimization", who:"Zhang, Fu, Ravindran", why:""},
+        {t:"12:00", p:"L", ti:"EREQ: Regular Expressions with Quantifiers and Incremental QE", who:"Zhuchko, Varatalu, Veanes, Bjørner", why:""}
+      ]},
+      {room:"Flatirons 3", session:"Domain-Specific Languages", chair:"Qirun Zhang", talks:[
+        {t:"11:00", p:"L", ti:"Decoupling Data Layouts from Bounding Volume Hierarchies", who:"Gyurgyik, Root, Kjolstad", why:""},
+        {t:"11:20", p:"H", ti:"Contextual Embeddings: Implementing Bound Variables through Instance Resolution", who:"Frohlich, Foster, Kavvos, Wang", why:"Bound variables via instance/trait resolution — Prologos trait + binder handling"},
+        {t:"11:40", p:"L", ti:"CoTenN: Constrained Optimization with Tensor Networks", who:"Sharma, Peng, Dangwal, Achour", why:""},
+        {t:"12:00", p:"M", ti:"Diagramming Program Values by Spatial Refinement", who:"Prasad, Tu, Kashyap, Nelson, Krishnamurthi", why:"Spatial refinement / diagrams; Krishnamurthi"},
+        {t:"12:20", p:"M", ti:"Persistent Iterators with Value Semantics", who:"Yihe Li, Gregory J. Duck", why:"Iterators w/ value semantics; structural sharing"}
+      ]},
+      {room:"Flatirons 4", session:"Semantics &amp; Hyperproperty Reasoning", chair:"Derek Dreyer", talks:[
+        {t:"11:00", p:"M", ti:"Towards Removing Undef Values from LLVM IR", who:"Lobo, McIver, Mitenkov, Lee, Sundararajah, Lopes", badge:"Distinguished", why:"LLVM IR semantics cleanup; compiler-IR relevance"},
+        {t:"11:20", p:"M", ti:"The Downgrading Semantics of Memory Safety", who:"Hansen, Larsen, Askarov", why:"Memory safety semantics; capabilities adjacent"},
+        {t:"11:40", p:"M", ti:"Causality and Semantic Separation", who:"Zhang, Luo, Bielicke, Jun, Chlipala", why:"Causal/separation semantics; module composition"},
+        {t:"12:00", p:"M", ti:"Hyper Separation Logic", who:"Gospodinov, Müller, Dardinier", why:"Hyperproperty separation logic"},
+        {t:"12:20", p:"L", ti:"Pantomime: Constructive Leakage Proofs via Simulation", who:"Webbers, Schenck, Wong, Sojakova, von Gleissenthall", why:""}
+      ]}
+    ]},
+    {type:"misc", s:"12:40", e:"14:00", title:"Lunch", loc:"Flatirons 1"},
+    {type:"block", s:"14:00", e:"15:20", label:"Afternoon", rec:"Flatirons 4",
+      recnote:"Unambiguous — F4 Equality Saturation has two H back-to-back.", rooms:[
+      {room:"Flatirons 2", session:"Generative Testing &amp; Program Synthesis", chair:"Stefan K. Muller", talks:[
+        {t:"14:00", p:"L", ti:"Scalable &amp; Accurate Application-Level Crash-Consistency Testing", who:"Gu, Neal, …, Kasikci", why:""},
+        {t:"14:20", p:"L", ti:"Trace-Guided Synthesis of Effectful Test Generators", who:"Zhou, Desai, Delaware, Jagannathan", why:""},
+        {t:"14:40", p:"L", ti:"Semantic Reification: A New Paradigm for Random Program Generation", who:"Chopra, Li, Sotiropoulos, Su", why:""},
+        {t:"15:00", p:"L", ti:"The Search for Constrained Random Generators", who:"Goldstein, Peleg, Torczon, Sainati, Lampropoulos, Pierce", why:""}
+      ]},
+      {room:"Flatirons 3", session:"Formal Verification of Probabilistic Programs", chair:"Feras Saad", talks:[
+        {t:"14:00", p:"L", ti:"Contextual Refinement of Higher-Order Concurrent Probabilistic Programs", who:"Li, Aguirre, Tassarotti, Birkedal", why:""},
+        {t:"14:20", p:"L", ti:"Supermartingales for Unique Fixed Points (Lower Bound Verification)", who:"Kura, Unno, Tsukada", why:""},
+        {t:"14:40", p:"L", ti:"SuperDP: Differential Privacy Refutation via Supermartingales", who:"Chatterjee, Goharshady, Žikelić", why:""},
+        {t:"15:00", p:"L", ti:"Modular Verification of Differential Privacy", who:"Haselwarter, Aguirre, …, Birkedal", why:""}
+      ]},
+      {room:"Flatirons 4", session:"Equality Saturation", chair:"Haobin Ni", talks:[
+        {t:"14:00", p:"H", ti:"Versioned E-Graphs", who:"Cesario, Zakhour, Weisenburger, Salvaneschi", why:"Versioned e-graphs — speculation / ATMS analog"},
+        {t:"14:20", p:"H", ti:"Improving Equality Saturation for EDA via Semantic E-Graphs", who:"Kong, Xia, Ruelas-Petrisko, Sisco, Balkind, Smith", why:"Semantic e-graphs — lattice + propagator overlap"},
+        {t:"14:40", p:"M", ti:"Equality Saturation for Quantum Circuit Optimization", who:"Yang, Raun, Tao, Gu", why:"E-saturation methodology"},
+        {t:"15:00", p:"M", ti:"Fungible Memories for Automated Technology Mapping and Retargeting", who:"Sisco, Kong, …, Balkind", why:"Tech mapping via e-graphs"}
+      ]}
+    ]},
+    {type:"break", s:"15:20", e:"15:50", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"misc", s:"~17:30", e:"", title:"Conference Banquet — Chautauqua Dining Hall (+ optional Chautauqua hike). Confirm time on-site.", loc:""}
+  ]
+},
+
+/* ===================== FRIDAY ===================== */
+{ id:"fri", date:"2026-06-19", label:"Fri", dnum:"Jun 19",
+  note:`<div class="clash"><b>The richest Prologos day — six H talks, two productive hops.</b><br>
+  <b>Morning hop (3 H):</b> F3 <b>Let It Flow</b> (async-dataflow compilation, H, 11:00) → F2 <b>A Categorical Basis for Robust Program Analysis</b> (Galois/categorical, H, 11:20) → back to F3 for <b>Escape with Your Self</b> (reachability types, H, 12:20).<br>
+  <b>Afternoon-I hop (3 H):</b> F3 <b>Datalog Probabilistic Inference</b> (H, 14:00) → F2 <b>Recursive Coalgebras</b> (H, 14:20) → stay F2 for <b>AND–OR Proof Search</b> (logic-programming search, H, 15:00).<br>
+  Afternoon-II (16:10) is a wind-down — no H; F2 "Optimization of Data Pipelines" has algebraic/relational M's if you want them.</div>`,
+  route:[
+    {when:"09:00", rm:"Plenary", k:1, dz:"Keynote 3 — Aws Albarghouthi (Wisconsin), “The Rise &amp; Collapse of a Quantum State.”"},
+    {when:"11:00", rm:"F3 → F2 → F3", dz:"<b>Let It Flow</b> async-dataflow compilation (H, F3 11:00) → hop F2 for <b>Categorical Basis</b> (H, 11:20) → back F3 for <b>Escape with Your Self</b> reachability types (H, 12:20).", h:"3× H"},
+    {when:"12:40", rm:"Lunch", dz:"Flatirons 1 (URM Lunch at Ajax Tavern)."},
+    {when:"14:00", rm:"F3 → F2", dz:"<b>Datalog Probabilistic Inference</b> (H, F3 14:00) → hop F2 for <b>Recursive Coalgebras</b> (H, 14:20) → stay F2 for <b>AND–OR Proof Search</b> (H, 15:00).", h:"3× H"},
+    {when:"16:10", rm:"Flatirons 2 (opt.)", dz:"Wind-down. <b>Optimization of Data Pipelines</b> — algebraic/relational M's (Homomorphism Calculus, Bonsai pruned-tree traversals). No H; optional."}
+  ],
+  events:[
+    {type:"misc", s:"08:00", e:"16:00", title:"Registration Desk Open", loc:"Flatirons Foyer"},
+    {type:"keynote", s:"09:00", e:"10:10", title:"Keynote 3 — Aws Albarghouthi (Wisconsin)", sub:"“The Rise &amp; Collapse of a Quantum State”", loc:"Flatirons 2+3+4 · plenary"},
+    {type:"break", s:"10:10", e:"11:00", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"block", s:"11:00", e:"12:40", label:"Morning", rec:"Flatirons 3",
+      recnote:"F3 anchor (2 H); hop to F2 at 11:20 for the Categorical Basis H if you want all three.", rooms:[
+      {room:"Flatirons 2", session:"Static Analysis 2", chair:"Martin Kellogg", talks:[
+        {t:"11:00", p:"M", ti:"Verifying Array Properties in Pure Data-Parallel Programs", who:"Hinnerskov, Schenck, Oancea", why:"Data-parallel verification; parallel substrate"},
+        {t:"11:20", p:"H", ti:"A Categorical Basis for Robust Program Analysis", who:"Zachary Kincaid, Shaowei Zhu", why:"Categorical / Galois-connection foundations — SRE lattice-lens direct match"},
+        {t:"11:40", p:"L", ti:"Synthesizing Backward Error Bounds, Backward", who:"Zielinski, Hsu", badge:"Distinguished", why:""}
+      ]},
+      {room:"Flatirons 3", session:"Verified Compilation &amp; Type Systems", chair:"Charles Yuan", talks:[
+        {t:"11:00", p:"H", ti:"Let It Flow: A Formally Verified Compilation Framework for Asynchronous Dataflow", who:"Lin, Cai, Surbatovich", why:"Async-dataflow compilation — parallels Prologos propagator-based parallel compilation"},
+        {t:"11:20", p:"M", ti:"Compiling to Recurrent Neurons", who:"Velez-Ginorio, Amin, Kording, Zdancewic", why:"Novel compilation target; Amin / Zdancewic"},
+        {t:"11:40", p:"M", ti:"Denotation-based Compositional Compiler Verification", who:"Cheng, Wu, Wang, Cao", badge:"TOPLAS", why:"Compositional compiler verification; module theory"},
+        {t:"12:00", p:"M", ti:"Responsive Parallelism with Dynamic and First-Class Priorities", who:"León, Dinh, Muller", why:"First-class priorities for parallelism; BSP-LE relevance"},
+        {t:"12:20", p:"H", ti:"Escape with Your Self: Bidirectional Typing with Avoidance for Reachability Types", who:"Jia, Wei, He, Bao, Rompf", why:"Bidirectional typing + reachability + avoidance — elaboration + capability core"}
+      ]},
+      {room:"Flatirons 4", session:"Compiler Optimization for Accelerators", chair:"Tyler Sorensen", talks:[
+        {t:"11:00", p:"L", ti:"Compiling Strassen-like Matrix Multiplication to Fast CUDA Kernels", who:"Abhinav Jangda", why:""},
+        {t:"11:20", p:"L", ti:"Parameterized Algorithms for Function Merging with Branch Reordering", who:"Goharshady, Kochekov, Shu, Zaher", why:""},
+        {t:"11:40", p:"L", ti:"Neptune: Advanced ML Operator Fusion for Locality / Parallelism on GPUs", who:"Zhao, Johnson, Chatarasi, Adve, Misailovic", why:""},
+        {t:"12:00", p:"L", ti:"SparseZETA: Auto-tuner for High-Performance SpMV", who:"Du, Liu, …, Li", why:""}
+      ]}
+    ]},
+    {type:"misc", s:"12:40", e:"14:00", title:"Lunch · URM Lunch (Ajax Tavern)", loc:"Flatirons 1"},
+    {type:"block", s:"14:00", e:"15:40", label:"Afternoon I", rec:"Flatirons 2",
+      recnote:"Triple-H hop: F3 Datalog (14:00) → F2 Coalgebras (14:20) → F2 AND–OR Proof Search (15:00).", rooms:[
+      {room:"Flatirons 2", session:"Verification &amp; Proof Reasoning", chair:"Qianchuan Ye", talks:[
+        {t:"14:00", p:"M", ti:"Heterogeneous Dynamic Logic: Provability Modulo Program Theories", who:"Teuber, Ulbrich, Platzer, Beckert", why:"Modular dynamic logic; module theory"},
+        {t:"14:20", p:"H", ti:"Intrinsically Correct Algorithms and Recursive Coalgebras", who:"Alexandru, Urbat, Wißmann", why:"Coalgebras — structural categorical foundation; SRE / Hyperlattice resonance"},
+        {t:"14:40", p:"L", ti:"CRIS: The Power of Imagination in Hybrid Verification", who:"Kim et al.", why:""},
+        {t:"15:00", p:"H", ti:"Navigating AND–OR Graph Modifications to Debug Failing Proof Search", who:"Lubin, Preigh, Willsey, Chasins", why:"AND-OR proof-search graphs — logic-programming search core; Willsey"},
+        {t:"15:20", p:"M", ti:"Project Everest: Industrial-Grade High-Assurance Software", who:"Multiple (MSR / CMU / Inria / …)", badge:"TOPLAS", why:"Large-scale verified software lessons"}
+      ]},
+      {room:"Flatirons 3", session:"Probabilistic Inference &amp; Verification", chair:"Đorđe Žikelić", talks:[
+        {t:"14:00", p:"H", ti:"Probabilistic Inference for Datalog with Correlated Inputs", who:"Wang, Halalingaiah, Chen, Wang, Dillig", badge:"OOPSLA'25", why:"Datalog + probabilistic inference — logic-programming substrate"},
+        {t:"14:20", p:"L", ti:"A Hierarchy of Supermartingales for ω-Regular Verification", who:"Kura, Unno", why:""},
+        {t:"14:40", p:"M", ti:"Incremental Computation for Efficient Programmable Inference", who:"Zaiser, Czenszak, Rinard, Mansinghka, Lew", why:"Incremental computation analog"},
+        {t:"15:00", p:"L", ti:"GradInf: Gradient Estimation as Probabilistic Inference", who:"Arya, Huot, Schauer, Lew, Saad", why:""},
+        {t:"15:20", p:"M", ti:"Categorical Semantics of Probabilistic Symbolic Execution", who:"John Li, Czenszak, Holtzen", badge:"Distinguished", why:"Categorical semantics; structural reasoning"}
+      ]},
+      {room:"Flatirons 4", session:"Rust Translation &amp; Borrowing", chair:"Ralf Jung", talks:[
+        {t:"14:00", p:"L", ti:"Cpp2Rust: Automatic Translation of C++ to Safe Rust", who:"Popescu et al.", why:""},
+        {t:"14:20", p:"L", ti:"&inator: Correct, Precise C-to-Rust Interface Translation", who:"Chen, Coughlin, Bond", why:""},
+        {t:"14:40", p:"L", ti:"Hayroll: Modular Wrapper for C Macros / Conditional Compilation to Rust", who:"Peng, Kasikci, Bernstein, Ernst", why:""},
+        {t:"15:00", p:"M", ti:"VerusBelt: Semantic Foundation for Verus's Proof-Oriented Rust Type-System Extensions", who:"(Verus team)", badge:"Distinguished", why:"Proof-oriented type-system extensions"},
+        {t:"15:20", p:"M", ti:"Pure Borrow: Linear Haskell Meets Rust-Style Borrowing", who:"(authors TBD)", why:"Linear types + borrowing — QTT / linear-types adjacency"}
+      ]}
+    ]},
+    {type:"break", s:"15:40", e:"16:10", title:"Coffee Break", loc:"Flatirons Foyer"},
+    {type:"block", s:"16:10", e:"17:30", label:"Afternoon II", rec:"Flatirons 2",
+      recnote:"No H this block — wind-down. F2 has algebraic/relational M's.", rooms:[
+      {room:"Flatirons 2", session:"Optimization of Data Pipelines", chair:"Pavel Panchekha", talks:[
+        {t:"16:10", p:"M", ti:"Homomorphism Calculus for User-Defined Aggregations", who:"(authors)", badge:"OOPSLA'25", why:"Homomorphisms / algebraic aggregation; algebraic substrate"},
+        {t:"16:30", p:"M", ti:"Bonsai: Compiling Queries to Pruned Tree Traversals", who:"(authors)", badge:"Distinguished", why:"Query compilation / tree-traversal pruning"},
+        {t:"16:50", p:"M", ti:"A Compiler for Fused Relational Operations on Multisets", who:"(authors)", why:"Relational-operation compilation; relational substrate"},
+        {t:"17:10", p:"L", ti:"Optimal Predicate Pushdown Synthesis", who:"(authors)", why:""}
+      ]},
+      {room:"Flatirons 3", session:"Potpourri", chair:"Cyrus Omar", talks:[
+        {t:"16:10", p:"M", ti:"Simplifying Safety Proofs with Forward-Backward Reasoning and Prophecy", who:"(authors)", why:"Forward-backward reasoning; bidirectional analysis"},
+        {t:"16:30", p:"L", ti:"Active Learning for Neurosymbolic Program Synthesis", who:"(authors)", badge:"OOPSLA'25", why:""}
+      ]},
+      {room:"Flatirons 4", session:"Runtime Memory &amp; Control Abstractions", chair:"Michael D. Bond", talks:[
+        {t:"16:10", p:"L", ti:"Revisiting Partial Tracing for Safe, Efficient, Concurrent GC in Unmanaged Languages", who:"(authors)", why:""},
+        {t:"16:30", p:"L", ti:"Dynamically Checked Deep Immutability in Python", who:"(authors)", why:""},
+        {t:"16:50", p:"L", ti:"FlexHeap: Dynamic I/O-Aware Heap Resizing for Managed Applications", who:"(authors)", why:""},
+        {t:"17:10", p:"M", ti:"Virtualizing Continuations", who:"(authors)", why:"Continuations / control abstractions — effects / session relevance"}
+      ]}
+    ]},
+    {type:"misc", s:"17:30", e:"", title:"Conference ends · evening: optional Chautauqua hike (18:00, meet Flatirons Foyer)", loc:""}
+  ]
+}
+
+]};
+
+/* ---------------- render ---------------- */
 const $ = (s,r=document)=>r.querySelector(s);
-const mins = t => { if(!t) return null; const [h,m]=t.split(":").map(Number); return h*60+m; };
-const esc = s => s; // strings already HTML-safe in DATA
+const mins = t => { if(!t||t[0]==="~") { if(t&&t[0]==="~"){const [h,m]=t.slice(1).split(":").map(Number); return h*60+m;} return null;} const [h,m]=t.split(":").map(Number); return h*60+m; };
+const TAG={H:"H",M:"M",L:"L"};
+function prioRank(p){return p==="H"?3:p==="M"?2:1}
 
-// route
-$("#routecard").innerHTML = DATA.route.map(r=>`
-  <div class="step">
-    <div class="when">${r.when}</div>
-    <div class="what">
-      <div class="rm">${r.rm}${r.k?`<span class="pill K">KEYNOTE</span>`:""}${r.h?`<span class="pill H">${r.h}</span>`:""}</div>
-      <div class="dz">${r.dz}</div>
-    </div>
-  </div>`).join("");
+let activeDay = DATA.days[0];
 
-// agenda
-const TAG = {H:"H",M:"M",L:"L"};
 function talkHTML(t){
   return `<div class="talk p-${t.p}" data-s="${mins(t.t)}">
     <div class="tt">${t.t}</div>
     <div class="tbody">
       <span class="tag">${TAG[t.p]}</span><span class="ti">${t.ti}</span>${t.badge?`<span class="badge">${t.badge}</span>`:""}
-      <div class="who">${t.who}</div>
-      ${t.why?`<div class="why">${t.why}</div>`:""}
-    </div>
-  </div>`;
+      <div class="who">${t.who}</div>${t.why?`<div class="why">${t.why}</div>`:""}
+    </div></div>`;
 }
-function roomHTML(rm, recName, blockStart, blockEnd){
+function roomHTML(rm, recName){
   const isRec = rm.room===recName;
   const onlyLow = rm.talks.every(t=>t.p==="L");
-  const collapsed = onlyLow ? "collapsed" : "";
-  return `<div class="room ${isRec?"rec":""} ${onlyLow?"only-low":""} ${collapsed}" data-bs="${blockStart}" data-be="${blockEnd}">
+  return `<div class="room ${isRec?"rec":""} ${onlyLow?"collapsed":""}">
     <div class="rhead"><span class="rname">${rm.room.replace("Flatirons","F")}</span><span class="rsess">${rm.session}</span><span class="chev">▾</span></div>
     <div class="chair">chair · ${rm.chair}</div>
-    <div class="talks">${rm.talks.map(talkHTML).join("")}</div>
-  </div>`;
+    <div class="talks">${rm.talks.map(talkHTML).join("")}</div></div>`;
 }
 function blockHTML(ev){
-  const star = ev.star ? " ★" : "";
   const rn = ev.recnote ? `<div style="color:var(--muted);font-size:12.5px;margin:2px 2px 8px">↳ ${ev.recnote}</div>` : "";
   return `<div class="block" data-s="${mins(ev.s)}" data-e="${mins(ev.e)}">
-    <div class="bhead"><span class="bt">${ev.label}${star}</span><span class="bw">${ev.s}–${ev.e}</span></div>
-    ${rn}
-    <div class="rooms">${ev.rooms.map(r=>roomHTML(r, ev.rec, mins(ev.s), mins(ev.e))).join("")}</div>
-  </div>`;
+    <div class="bhead"><span class="bt">${ev.label}${ev.star?" ★":""}</span><span class="bw">${ev.s}–${ev.e}</span></div>
+    ${rn}<div class="rooms">${ev.rooms.map(r=>roomHTML(r, ev.rec)).join("")}</div></div>`;
 }
 function miscHTML(ev){
-  const cls = ev.type==="keynote" ? "keynote" : ev.type;
   if(ev.type==="keynote"){
     return `<div class="ev keynote" data-s="${mins(ev.s)}" data-e="${mins(ev.e)}">
       <span class="pill K" style="margin:0 0 4px">KEYNOTE</span>
       <div class="kt">${ev.s}–${ev.e} · ${ev.title}</div>
       <div style="margin-top:3px">${ev.sub}</div>
-      <div style="color:var(--muted);font-size:12px;margin-top:3px">${ev.loc}</div>
-    </div>`;
+      <div style="color:var(--muted);font-size:12px;margin-top:3px">${ev.loc}</div></div>`;
   }
+  const cls = ev.type==="break" ? "break" : "misc";
   return `<div class="ev ${cls}" data-s="${mins(ev.s)}" data-e="${ev.e?mins(ev.e):''}">
-    <span class="time">${ev.s}${ev.e?"–"+ev.e:""}</span><span>${ev.title}${ev.loc?` · <span style="opacity:.85">${ev.loc}</span>`:""}</span>
-  </div>`;
+    <span class="time">${ev.s}${ev.e?"–"+ev.e:""}</span><span>${ev.title}${ev.loc?` · <span style="opacity:.85">${ev.loc}</span>`:""}</span></div>`;
 }
-$("#agenda").innerHTML = DATA.events.map(ev => ev.type==="block" ? blockHTML(ev) : miscHTML(ev)).join("");
-
-// matrix — full-day grid: times down, rooms across; all rooms visible; best-fit ringed
-function prioRank(p){return p==="H"?3:p==="M"?2:1}
-function buildMatrix(){
+function buildMatrix(day){
   let html="";
-  for(const ev of DATA.events){
+  for(const ev of day.events){
     if(ev.type!=="block"){
       const cls = ev.type==="keynote" ? "key" : "misc";
       const tl = ev.s + (ev.e?"–"+ev.e:"");
@@ -422,14 +532,14 @@ function buildMatrix(){
       continue;
     }
     html += `<div class="mblock"><div class="mb-title">${ev.label} <span>${ev.s}–${ev.e}</span></div>`;
-    html += `<div class="grid-row mb-head"><div class="rhx"></div>` +
+    html += `<div class="grid-row mb-head"><div></div>` +
       ev.rooms.map(r=>`<div class="rh">${r.room.replace("Flatirons","F")} · ${r.session}</div>`).join("") + `</div>`;
     const times=[...new Set(ev.rooms.flatMap(r=>r.talks.map(t=>t.t)))].sort();
     for(const tm of times){
       const cells = ev.rooms.map(r=>r.talks.find(t=>t.t===tm)||null);
       const present = cells.filter(Boolean);
       const maxr = present.length ? Math.max(...present.map(t=>prioRank(t.p))) : 0;
-      const markBest = maxr>=2; // only ring a "pick" when something M+ exists
+      const markBest = maxr>=2;
       html += `<div class="grid-row"><div class="mt" data-s="${mins(tm)}">${tm}</div>`;
       for(const tk of cells){
         if(!tk){ html += `<div class="mc empty"></div>`; continue; }
@@ -446,115 +556,113 @@ function buildMatrix(){
   }
   return html;
 }
-$("#matrix").innerHTML = buildMatrix();
-$("#matrix").addEventListener("click", e=>{
-  const c=e.target.closest(".mc");
-  if(c && !c.classList.contains("empty")) c.classList.toggle("open");
+function renderDay(day){
+  activeDay = day;
+  $("#dayTitle").textContent = `PLDI 2026 — ${day.label} ${day.dnum}`;
+  $("#routecard").innerHTML = day.route.map(r=>`
+    <div class="step"><div class="when">${r.when}</div>
+    <div class="what"><div class="rm">${r.rm}${r.k?`<span class="pill K">KEYNOTE</span>`:""}${r.h?`<span class="pill H">${r.h}</span>`:""}</div>
+    <div class="dz">${r.dz}</div></div></div>`).join("");
+  $("#clashbox").innerHTML = day.note || "";
+  $("#agenda").innerHTML = day.events.map(ev => ev.type==="block" ? blockHTML(ev) : miscHTML(ev)).join("");
+  $("#matrix").innerHTML = buildMatrix(day);
+  // day buttons
+  document.querySelectorAll("#dayseg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.id===day.id?"true":"false"));
+  tick();
+}
+
+/* day switcher */
+function todayId(){
+  const n=new Date(); const d=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;
+  const m=DATA.days.find(x=>x.date===d); return m?m.id:null;
+}
+const tId = todayId();
+$("#dayseg").innerHTML = DATA.days.map(d=>
+  `<button data-id="${d.id}" class="${d.id===tId?'today':''}">${d.label}<span class="dnum">${d.dnum}</span></button>`).join("");
+$("#dayseg").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  renderDay(DATA.days.find(d=>d.id===b.dataset.id));
 });
 
-/* ---------- interactions ---------- */
-// collapse rooms
-$("#agenda").addEventListener("click", e=>{
-  const h = e.target.closest(".rhead");
-  if(h) h.parentElement.classList.toggle("collapsed");
-});
-// filter
-document.querySelectorAll(".seg button[data-f]").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".seg button[data-f]").forEach(b=>b.setAttribute("aria-pressed","false"));
-    btn.setAttribute("aria-pressed","true");
-    document.body.classList.remove("f-all","f-hm","f-h");
-    document.body.classList.add("f-"+btn.dataset.f);
-  });
-});
-// view toggle
-document.querySelectorAll(".seg button[data-v]").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".seg button[data-v]").forEach(b=>b.setAttribute("aria-pressed","false"));
-    btn.setAttribute("aria-pressed","true");
-    const ag = btn.dataset.v==="agenda";
-    $("#agenda-sec").classList.toggle("hidden", !ag);
-    $("#matrix-sec").classList.toggle("hidden", ag);
-  });
-});
+/* collapse rooms / expand matrix cells */
+$("#agenda").addEventListener("click", e=>{ const h=e.target.closest(".rhead"); if(h) h.parentElement.classList.toggle("collapsed"); });
+$("#matrix").addEventListener("click", e=>{ const c=e.target.closest(".mc"); if(c && !c.classList.contains("empty")) c.classList.toggle("open"); });
 
-/* ---------- live clock + NOW ---------- */
+/* filters + view toggle */
+document.querySelectorAll(".seg button[data-f]").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".seg button[data-f]").forEach(b=>b.setAttribute("aria-pressed","false"));
+  btn.setAttribute("aria-pressed","true");
+  document.body.classList.remove("f-all","f-hm","f-h"); document.body.classList.add("f-"+btn.dataset.f);
+}));
+document.querySelectorAll(".seg button[data-v]").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".seg button[data-v]").forEach(b=>b.setAttribute("aria-pressed","false"));
+  btn.setAttribute("aria-pressed","true");
+  const ag = btn.dataset.v==="agenda";
+  $("#agenda-sec").classList.toggle("hidden", !ag);
+  $("#matrix-sec").classList.toggle("hidden", ag);
+}));
+
+/* live clock + NOW */
 function pad(n){return String(n).padStart(2,"0")}
 function tick(){
-  const now = new Date();
-  const localDate = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-  const mNow = now.getHours()*60 + now.getMinutes();
-  $("#clock").textContent = pad(now.getHours())+":"+pad(now.getMinutes());
+  const now=new Date();
+  const localDate=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const mNow=now.getHours()*60+now.getMinutes();
+  $("#clock").textContent=pad(now.getHours())+":"+pad(now.getMinutes());
+  const isToday = (activeDay.date===localDate);
 
-  // current event
-  let cur=null, curEl=null;
-  document.querySelectorAll("#agenda [data-s]").forEach(el=>{
-    const s=+el.dataset.s, e=el.dataset.e===""?null:+el.dataset.e;
-    if(e!=null && mNow>=s && mNow<e && (el.classList.contains("block")||el.classList.contains("ev"))){ cur=el; }
-  });
-  // highlight current talk (agenda)
-  document.querySelectorAll(".talk.now").forEach(t=>t.classList.remove("now"));
-  document.querySelectorAll("#agenda .block").forEach(bl=>{
-    const bs=+bl.dataset.s, be=+bl.dataset.e;
-    if(mNow>=bs && mNow<be){
-      bl.querySelectorAll(".talk").forEach(tk=>{
-        const ts=+tk.dataset.s, te=ts+20;
-        if(mNow>=ts && mNow<te){ tk.classList.add("now"); }
-      });
-    }
-  });
-  // highlight current row + cells (matrix)
-  document.querySelectorAll("#matrix .now").forEach(el=>el.classList.remove("now"));
-  document.querySelectorAll("#matrix .mc[data-s], #matrix .mt[data-s]").forEach(el=>{
-    const s=+el.dataset.s;
-    if(mNow>=s && mNow<s+20){ el.classList.add("now"); }
-  });
+  document.querySelectorAll(".talk.now,#matrix .now").forEach(el=>el.classList.remove("now"));
 
-  // NOW bar text
-  const off = (localDate!==DATA.date);
-  let curTxt;
-  const block = [...document.querySelectorAll("#agenda .block")].find(b=>mNow>=+b.dataset.s && mNow<+b.dataset.e);
-  if(block){
-    const rec = block.querySelector(".room.rec .rsess");
-    const lbl = block.querySelector(".bt").textContent;
-    const nowTalk = block.querySelector(".room.rec .talk.now .ti") || block.querySelector(".talk.now .ti");
-    curTxt = `<b>NOW · ${lbl}</b> — pick: ${rec?rec.textContent:""}` + (nowTalk?` · <i>${nowTalk.textContent}</i>`:"");
-  } else {
-    const mev = [...document.querySelectorAll("#agenda .ev")].find(b=>b.dataset.e!=="" && mNow>=+b.dataset.s && mNow<+b.dataset.e);
-    if(mev){ curTxt = `<b>NOW</b> — ${mev.querySelector(".kt")?mev.querySelector(".kt").textContent:mev.textContent.trim()}`; }
-    else { curTxt = `<b>No session in progress.</b>`; }
+  if(!isToday){
+    $("#nb-cur").innerHTML = `<b>Viewing ${activeDay.label} ${activeDay.dnum}</b> <span style="color:var(--muted)">— not today (${localDate}). Live highlight off.</span>`;
+    $("#nb-next").textContent=""; return;
   }
-  if(off) curTxt += ` <span style="color:var(--muted)">(showing Wed Jun 17; device shows ${localDate})</span>`;
-  $("#nb-cur").innerHTML = curTxt;
-
-  // next H talk
-  let next=null;
-  document.querySelectorAll("#agenda .talk.p-H").forEach(tk=>{
-    const ts=+tk.dataset.s;
-    if(ts>mNow && (!next || ts<next.s)) next={s:ts, el:tk};
+  // agenda now
+  document.querySelectorAll("#agenda .block").forEach(bl=>{
+    if(mNow>=+bl.dataset.s && mNow<+bl.dataset.e)
+      bl.querySelectorAll(".talk").forEach(tk=>{ const ts=+tk.dataset.s; if(mNow>=ts && mNow<ts+20) tk.classList.add("now"); });
   });
+  // matrix now
+  document.querySelectorAll("#matrix .mc[data-s], #matrix .mt[data-s]").forEach(el=>{
+    const s=+el.dataset.s; if(mNow>=s && mNow<s+20) el.classList.add("now");
+  });
+  // now bar
+  const block=[...document.querySelectorAll("#agenda .block")].find(b=>mNow>=+b.dataset.s && mNow<+b.dataset.e);
+  let cur;
+  if(block){
+    const rec=block.querySelector(".room.rec .rsess");
+    const lbl=block.querySelector(".bt").textContent;
+    const nt=block.querySelector(".room.rec .talk.now .ti")||block.querySelector(".talk.now .ti");
+    cur=`<b>NOW · ${lbl}</b> — pick: ${rec?rec.textContent:""}`+(nt?` · <i>${nt.textContent}</i>`:"");
+  } else {
+    const mev=[...document.querySelectorAll("#agenda .ev")].find(b=>b.dataset.e!=="" && mNow>=+b.dataset.s && mNow<+b.dataset.e);
+    cur = mev ? `<b>NOW</b> — ${mev.querySelector(".kt")?mev.querySelector(".kt").textContent:mev.textContent.trim()}` : `<b>No session in progress.</b>`;
+  }
+  $("#nb-cur").innerHTML=cur;
+  let next=null;
+  document.querySelectorAll("#agenda .talk.p-H").forEach(tk=>{ const ts=+tk.dataset.s; if(ts>mNow && (!next||ts<next.s)) next={s:ts,el:tk}; });
   if(next){
-    const d = next.s - mNow;
-    const ti = next.el.querySelector(".ti").textContent;
-    const room = next.el.closest(".room").querySelector(".rname").textContent;
-    $("#nb-next").innerHTML = `next H in ${d}m<br>${room} · ${ti.length>30?ti.slice(0,30)+"…":ti}`;
-  } else { $("#nb-next").textContent = ""; }
+    const d=next.s-mNow, ti=next.el.querySelector(".ti").textContent;
+    const room=next.el.closest(".room").querySelector(".rname").textContent;
+    $("#nb-next").innerHTML=`next H in ${d}m<br>${room} · ${ti.length>28?ti.slice(0,28)+"…":ti}`;
+  } else $("#nb-next").textContent="";
 }
 function jumpNow(){
-  const matrixOn = !$("#matrix-sec").classList.contains("hidden");
+  const matrixOn=!$("#matrix-sec").classList.contains("hidden");
   let target=null;
-  if(matrixOn){ target = $("#matrix .mc.now") || $("#matrix .mt.now"); }
+  if(matrixOn) target=$("#matrix .mc.now")||$("#matrix .mt.now");
   if(!target){
-    const now = new Date().getHours()*60+new Date().getMinutes();
-    target = [...document.querySelectorAll("#agenda .block, #agenda .ev")].find(b=>{
-      const s=+b.dataset.s, e=b.dataset.e===""?null:+b.dataset.e;
-      return e!=null && now>=s && now<e;
-    });
+    const now=new Date().getHours()*60+new Date().getMinutes();
+    target=[...document.querySelectorAll("#agenda .block, #agenda .ev")].find(b=>{
+      const s=+b.dataset.s, e=b.dataset.e===""?null:+b.dataset.e; return e!=null && now>=s && now<e; });
   }
-  (target||document.querySelector("#route")).scrollIntoView({behavior:"smooth", block:"center"});
+  (target||$("#route")).scrollIntoView({behavior:"smooth", block:"center"});
 }
 $("#jumpnow").addEventListener("click", jumpNow);
-tick(); setInterval(tick, 30000);
+
+/* boot: open to today (or Wed) */
+renderDay(DATA.days.find(d=>d.id===tId) || DATA.days[0]);
+setInterval(tick, 30000);
 </script>
 </body>
 </html>
